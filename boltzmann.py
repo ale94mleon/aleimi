@@ -86,18 +86,17 @@ def out_reader (out):
             natoms = int(l.split()[-2])
             break
             f.close
-
-        
+       
     f = open(out, 'r')
     while True:
         l = f.readline()
         k = l
         if len(l) == 0:break
                
-        if '-------------------------------------------------------------------------------' in l:
+        if 79*'-' in l:
             while True:
                 k = f.readline()
-                if ('*******************************************************************************' in k) or (len(k) == 0):break
+                if (79*'*' in k) or (len(k) == 0):break
                 if "E = " in k:
                     split = k.split('=')[-1]
                     try:
@@ -152,7 +151,7 @@ def main(file_path, d_rmsd, d_E = None, out_path = None):
     elif ext == 'out':
         ordered = (out_reader(file_path))
     else:
-        raise ValueError(f"{file_path} does not have .arc or out extension. Therefore is not readeable by ALEIMI.")
+        raise ValueError(f"{file_path} does not have .arc or .out extension. Therefore is not readeable by ALEIMI.")
 
     if d_E:
         for i, x in enumerate(range(len(ordered))):

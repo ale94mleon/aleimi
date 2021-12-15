@@ -13,7 +13,7 @@ DEPENDENCIES  :
 ===============================================================================
 """
 
-from os import system
+
 from glob import glob
 from sys import exit
 from numpy import unique, zeros
