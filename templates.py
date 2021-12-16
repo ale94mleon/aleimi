@@ -114,6 +114,10 @@ class INPUT:
             self.input += f"{self.keywords[self.engine]['calc_type']}('{self.keywords[self.engine]['level']}')\n"
             if self.keywords[self.engine]['freq']:
                self.input += f"{self.keywords[self.engine]['level']}_e, {self.keywords[self.engine]['level']}_wfn = frequencies('{self.keywords[self.engine]['level']}', return_wfn=True, dertype=1)\n"
+            self.input += f"with open('{self.keywords[self.engine]['name']}_psi4out.xyz', 'w') as f:\n"\
+            f"\tf.write('{len(self.keywords[self.engine]['coords'])} ' )\n"\
+            "\tf.write('%.12f\\n' % energy)\n"\
+            "\tf.write(MOL.save_string_xyz())"
 
             self.jobsh += "#!/bin/bash\n"\
             f"#SBATCH --partition {self.keywords[self.engine]['partition']}\n"\
@@ -247,5 +251,5 @@ class INPUT:
 
 if __name__ == '__main__':
 
-    s = INPUT('orca', SMD= True)
+    s = INPUT('psi4')
     print(s.input)

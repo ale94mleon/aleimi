@@ -15,10 +15,9 @@ DEPENDENCIES  :
 
 
 from glob import glob
-from sys import exit
-from numpy import unique, zeros
 from rmsd import kabsch_rmsd
 import pandas as pd
+import numpy as np
 
 #system('touch temp1.txt temp2.txt')
 #system('sleep 5')
@@ -38,9 +37,7 @@ def out_read(out):
     check_freq, Gibbs free energy, exyz, xyz2RMSD_H.
 
     '''
-    from pandas import DataFrame
-    from numpy import array
-    from math import sqrt
+
     
     with open(out, 'rt', encoding='latin-1') as file:
         lines = file.readlines()
@@ -68,7 +65,7 @@ def out_read(out):
                  then frequ_chek =False
                 '''
                 try:
-                    sqrt(float(f))
+                    np.sqrt(float(f))
                 except:
                     check_freq = False
         if 'Total G, Free enthalpy at  298.15 [K]' in lines[i]:
@@ -77,8 +74,8 @@ def out_read(out):
             
             
             
-    exyz = DataFrame(exyz)
-    xyz2RMSD_H = array(xyz2RMSD_H, dtype=float)    
+    exyz = pd.DataFrame(exyz)
+    xyz2RMSD_H = np.array(xyz2RMSD_H, dtype=float)    
     
     return check_freq, G, exyz, xyz2RMSD_H
 
@@ -90,10 +87,10 @@ outs = glob('*out')
 if len(outs) == 0:
     exit('No se pueden encontrar los archivos .out')
 
-first_names = []
+first_names = {}
 for out in outs:
-    first_names.append(out.split('_Cell')[0])
-first_names = unique(first_names)
+    first_names.add(out.split('_Cell')[0])
+first_names = list(first_names)
 
 wrong_freq = []
 for first_name in first_names:
@@ -129,7 +126,7 @@ for first_name in first_names:
         to_print.to_string(final)
 
    
-    rmsd_matrix = zeros((len(ORDERED),len(ORDERED)))
+    rmsd_matrix = np.zeros((len(ORDERED),len(ORDERED)))
     for i in range(len(rmsd_matrix)):
         for j in range(len(rmsd_matrix)):
             if j < i:
