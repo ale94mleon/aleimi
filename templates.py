@@ -86,7 +86,7 @@ class INPUT:
             f"memory {self.keywords[self.engine]['memory']}\n\n"\
             f"molecule {self.keywords[self.engine]['name']} {'{'}\n"\
             f"{self.keywords[self.engine]['charge_mult']}\n"\
-            f"{self.keywords[self.engine]['coords'].to_string(header=False, index=False)}\n\n"
+            f"{self.keywords[self.engine]['coords'].to_string(header=False, index=False)}\n"
             if self.keywords[self.engine]['PCM']: self.input += "symmetry c1\n"
             self.input += "}\n\n"
             if self.keywords[self.engine]['PCM']:
@@ -143,16 +143,15 @@ class INPUT:
             "# export PSI_SCRATCH env variable\n"\
             "export PSI_SCRATCH=$MY_TEMP_DIR\n\n"\
             "# This block is echoing some SLURM variables\n"\
-            "echo \"Job execution start: $(date)\""\
+            "echo \"Job execution start: $(date)\"\n"\
             "echo \"Jobid = $SLURM_JOBID\"\n"\
             "echo \"Host = $SLURM_JOB_NODELIST\"\n"\
             "echo \"Jobname = $SLURM_JOB_NAME\"\n"\
             "echo \"Subcwd = $SLURM_SUBMIT_DIR\"\n"\
-            "echo \"SLURM_CPUS_PER_TASK = $SLURM_CPUS_PER_TASK\"n"\
             "echo \"SLURM_CPUS_PER_TASK = $SLURM_CPUS_PER_TASK\"\n"\
             "echo \"SLURM_CPUS_ON_NODE = $SLURM_CPUS_ON_NODE\"\n"\
             "echo \"The temp file used was: $MY_TEMP_DIR\"\n\n"\
-            f"psi4 -i ${{'SLURM_JOB_NAME'}}.in -o ${{'SLURM_JOB_NAME'}}.out -n {self.keywords[self.engine]['ntasks'] * self.keywords[self.engine]['cpus-per-task']} #run command, in, out and number of threads to be used\n\n"\
+            f"psi4 -i ${{SLURM_JOB_NAME}}.in -o ${{SLURM_JOB_NAME}}.out -n {self.keywords[self.engine]['ntasks'] * self.keywords[self.engine]['cpus-per-task']} #run command, in, out and number of threads to be used\n\n"\
             "#Deliting the scratch file. Normal delete on normal exit\n"\
             "rm -rf $MY_TEMP_DIR\n\n"\
             "echo \"Job execution end: $(date)\""
@@ -210,16 +209,15 @@ class INPUT:
             "# Creating nodefile in scratch\n"\
             "echo $SLURM_NODELIST > $MY_TEMP_DIR/${SLURM_JOB_NAME}.nodes\n\n"\
             "# This block is echoing some SLURM variables\n"\
-            "echo \"Job execution start: $(date)\""\
+            "echo \"Job execution start: $(date)\"\n"\
             "echo \"Jobid = $SLURM_JOBID\"\n"\
             "echo \"Host = $SLURM_JOB_NODELIST\"\n"\
             "echo \"Jobname = $SLURM_JOB_NAME\"\n"\
             "echo \"Subcwd = $SLURM_SUBMIT_DIR\"\n"\
-            "echo \"SLURM_CPUS_PER_TASK = $SLURM_CPUS_PER_TASK\"n"\
             "echo \"SLURM_CPUS_PER_TASK = $SLURM_CPUS_PER_TASK\"\n"\
             "echo \"SLURM_CPUS_ON_NODE = $SLURM_CPUS_ON_NODE\"\n"\
             "echo \"The temp file used was: $MY_TEMP_DIR\"\n\n"\
-            f"$(which orca) ${{'SLURM_JOB_NAME'}}.inp > ${{'SLURM_JOB_NAME'}}.log 2>&1 # run command\n\n"\
+            f"$(which orca) ${{SLURM_JOB_NAME}}.inp > ${{SLURM_JOB_NAME}}.log 2>&1 # run command\n\n"\
             "# ORCA has finished here. Now copy important stuff back (xyz files, GBW files etc.). Add more here if needed.\n"\
             "cp $MY_TEMP_DIR/*.gbw $SLURM_SUBMIT_DIR\n"\
             "cp $MY_TEMP_DIR/*.xyz $SLURM_SUBMIT_DIR\n"\
@@ -236,6 +234,16 @@ class INPUT:
             raise Exception(f'The engine {self.engine} is not coded!')
         else:
             raise Exception(f'The engine {self.engine} is not coded!')
+    def write(self, outpath, attribute):
+        with open(outpath, 'w') as f:
+            if attribute == 'input':
+                f.write(self.input)
+            elif attribute == 'jobsh':
+                f.write(self.jobsh)
+            else:
+                raise ValueError(f"{attribute} is not a correct attribute. Must be: 'input' or 'jobsh'")
+
+
 
 if __name__ == '__main__':
 

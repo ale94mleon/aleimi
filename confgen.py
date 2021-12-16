@@ -20,7 +20,7 @@ from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 import glob as glob
 import pandas as pd
-from operator import itemgetter
+# from operator import itemgetter
 import os
 import tempfile
 from aleimi import OBconvert
@@ -121,8 +121,11 @@ def makeimg(mols, **keywords):
         legends = [f'Mol: {x+1}' for x in range(len(ms))]
 
     img=Draw.MolsToGridImage(ms,molsPerRow=best,subImgSize=(700,700), legends=legends)
-    img.save('Molecules used.png')                                                      
-   
+    if len(ms) > 1:
+        img.save('Molecules used.png')
+    else:
+        img.save(f'{legends[0]}.png')
+
 
 
 

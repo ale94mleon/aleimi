@@ -22,7 +22,7 @@ def arc_reader (arcf):
         lines = a.readlines()
     
     # getting data from arc                                                       #
-    totals_ev = []
+    HeatsOfFormation_kcalmol = []
     cells = []
     Class_E = []
     # finding No. of atoms
@@ -38,14 +38,14 @@ def arc_reader (arcf):
     #atoms = []
     for i, line in enumerate(lines):
 
-        if 'TOTAL ENERGY' in line:
-            totals_ev.append(float(line.split()[-2]))
+        if 'HEAT OF FORMATION' in line:
+            HeatsOfFormation_kcalmol.append(float(line.split()[-2]))
        
         elif 'Empirical Formula' in line:
             try:
                 Class_E.append(float(lines[i+3].split('=')[-1].split()[0])) #las dos versiones con y sin optimizacion
             except:
-                Class_E.append(lines[i+3].split('=')[-1].split()[0])
+                Class_E.append(None)
                     
             cells.append(int(lines[i+4].split(':')[1]))
     
@@ -61,7 +61,7 @@ def arc_reader (arcf):
             CONTAINER__H.append(np.array(cart__H, dtype=np.float))
     #atoms = (np.asarray(atoms))
     # .... organizing
-    paired = list(zip(cells, totals_ev, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
+    paired = list(zip(cells, HeatsOfFormation_kcalmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
     ORDERED = sorted(paired, key=lambda x: x[1])  #Esto ordena la tupla segun la energia de menor a mayor
     return ORDERED #, atoms]
 
@@ -71,7 +71,7 @@ def ignoreLines(f, n):
 def out_reader (out):
     f = open(out, 'r')
     chunk = []
-    totals_ev = []
+    HeatsOfFormation_kcalmol = []
     cells = []
     Class_E = []
     CONTAINER__H = []
@@ -81,36 +81,34 @@ def out_reader (out):
     # getting data from out                                                       #
     # finding No. of atoms
     while True:
-        l = f.readline()
-        if "Empirical Formula" in l:
-            natoms = int(l.split()[-2])
+        line = f.readline()
+        if "Empirical Formula" in line:
+            natoms = int(line.split()[-2])
             break
             f.close
        
     f = open(out, 'r')
     while True:
-        l = f.readline()
-        k = l
-        if len(l) == 0:break
+        line = f.readline()
+        if len(line) == 0:break
                
-        if 79*'-' in l:
+        if 79*'-' in line:
             while True:
-                k = f.readline()
-                if (79*'*' in k) or (len(k) == 0):break
-                if "E = " in k:
-                    split = k.split('=')[-1]
+                line = f.readline()
+                if (79*'*' in line) or (len(line) == 0):break
+                if "E_UFF = " in line:
+                    split = line.split('=')[-1]
                     try:
                         Class_E.append(float(split))
                     except:
-                        Class_E.append(split)
+                        Class_E.append(None)
 
-                elif 'CELL' in k:
-
-                    cells.append(int(k.split(':')[1]))
+                elif 'CELL' in line:
+                    cells.append(int(line.split(':')[1]))
                     
-                elif 'TOTAL ENERGY' in k:
-                    totals_ev.append(float(k.split()[-2]))
-                elif 'CARTESIAN COORDINATES' in k:
+                elif 'HEAT OF FORMATION' in line:
+                    HeatsOfFormation_kcalmol.append(float(line.split()[-2]))
+                elif 'CARTESIAN COORDINATES' in line:
                     ignoreLines(f, 1)
                     cont = 0
                     chunk = []        
@@ -125,7 +123,7 @@ def out_reader (out):
             CONTAINER__H.append(np.array(cart__H, dtype=np.float))
     f.close
     # .... organizing
-    paired = list(zip(cells, totals_ev, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
+    paired = list(zip(cells, HeatsOfFormation_kcalmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
     ORDERED = sorted(paired, key=lambda x: x[1])  #Esto ordena la tupla segun la energia de menor a mayor
     return ORDERED
 
@@ -144,7 +142,6 @@ def main(file_path, d_rmsd, d_E = None, out_path = None):
 
     # d_E = 0.001
     # d_rmsd = 1.0
-    name = os.path.basename(file_path).split('.')[0]
     ext = os.path.basename(file_path).split('.')[-1]
     if ext == 'arc':
         ordered = (arc_reader(file_path))
@@ -212,26 +209,24 @@ def main(file_path, d_rmsd, d_E = None, out_path = None):
 # =============================================================================
     k = 0.0019872                              # Boltzmann Constant (kcal/mol*K)
     T = 298.15                                 # Absolute T (K)
-    DF = pd.DataFrame(columns=['cell','Class_E', 'ev', 'kcal', 'Emin_Ei',
+    DF = pd.DataFrame(columns=['cell','Class_E', 'HeatOfFormation_kcalmol', 'Emin_Ei',
                                'qi__Pi/Pmin__e^(Emin_Ei)/kT','Fraction_%__100*qi/q'])
     cells_und = [ordered[i][0] for i, x in enumerate(ordered)]
     Class_E = [ordered[i][3] for i, x in enumerate(ordered)]
-    energ_ev = [ordered[i][1] for i, x in enumerate(ordered)]
-    energ_kcal = [x * 23 for x in energ_ev]
-    min_energ_kcal = min(energ_kcal)
-    relative_kcal = [min_energ_kcal - x for x in energ_kcal]
+    HeatsOfFormation_kcalmol = [ordered[i][1] for i, x in enumerate(ordered)]
+    MinHeatsOfFormation_kcalmol = min(HeatsOfFormation_kcalmol)
+    relative_kcal = [MinHeatsOfFormation_kcalmol - x for x in HeatsOfFormation_kcalmol]
     qi = [np.e**(E_r/(k*T)) for E_r in relative_kcal]
     q = sum(qi)
     Fraction = [100*i/q for i in qi]
-    #Z = [np.e**(-(E/(k*T))) for E in energ_kcal] #no pudo calcular Z: verflowError: (34, 'Result too large') 
-    #Pi_b = [(np.e**-(E/(k*T)))/Z for E in energ_kcal]
+    #Z = [np.e**(-(E/(k*T))) for E in energy_kcal] #no pudo calcular Z: verflowError: (34, 'Result too large') 
+    #Pi_b = [(np.e**-(E/(k*T)))/Z for E in energy_kcal]
     # =============================================================================
     #     DATAFRAME
     # =============================================================================
     DF['cell'] = cells_und
     DF['Class_E'] = Class_E
-    DF['ev'] = energ_ev
-    DF['kcal'] = energ_kcal
+    DF['HeatOfFormation_kcalmol'] = HeatsOfFormation_kcalmol
     DF['Emin_Ei'] = relative_kcal
     DF['qi__Pi/Pmin__e^(Emin_Ei)/kT'] = qi
     DF['Fraction_%__100*qi/q'] = Fraction
