@@ -118,7 +118,7 @@ def main(
     input_file,
     boltzmann_file,
     energy_cut = 2,
-    conformer_cut = None,
+    conformer_cut = 0,
     engine = 'psi4',
     mkdir = True,
     jobsh = True,

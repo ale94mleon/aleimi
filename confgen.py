@@ -32,11 +32,11 @@ from aleimi import OBconvert
 #y no la ve el segundo ciclo
 #pero el primero cuando llegue a ella la vera y tomara su id
 # =============================================================================
-def confgen(mol, d_rmsd, numConfs, numThreads = 0, optimization = False):
+def confgen(mol, rdkit_d_RMSD, numConfs, rdkit_numThreads = 0, UFF = False):
     molecule = Chem.AddHs(mol)
-    ids = AllChem.EmbedMultipleConfs(molecule, numConfs=numConfs, numThreads=numThreads)
-    if optimization:
-        opt = AllChem.UFFOptimizeMoleculeConfs(molecule, numThreads=numThreads, ignoreInterfragInteractions=False, maxIters=500) # The result is a list a containing 2-tuples: (not_converged, energy) for each conformer. If not_converged is 0, the minimization for that conformer converged.
+    ids = AllChem.EmbedMultipleConfs(molecule, numConfs=numConfs, numThreads=rdkit_numThreads)
+    if UFF:
+        opt = AllChem.UFFOptimizeMoleculeConfs(molecule, numThreads=rdkit_numThreads, ignoreInterfragInteractions=False, maxIters=500) # The result is a list a containing 2-tuples: (not_converged, energy) for each conformer. If not_converged is 0, the minimization for that conformer converged.
     
         print('Calculando RMSD ...')
         rmsd_reject = set()
@@ -53,7 +53,7 @@ def confgen(mol, d_rmsd, numConfs, numThreads = 0, optimization = False):
                 for idx in ids:
                     if i < idx:
                         RMSD = AllChem.GetConformerRMS(molecule, i, idx, prealigned=True)
-                        if RMSD <= d_rmsd:
+                        if RMSD <= rdkit_d_RMSD:
                             if opt[i][1] < opt[idx][1]:
                                 rmsd_reject.add(ids[i])
                                 rmsd_no_reject.add(ids[idx])
@@ -63,7 +63,7 @@ def confgen(mol, d_rmsd, numConfs, numThreads = 0, optimization = False):
 
         reject = opt_reject.union(rmsd_reject)
         if len(rmsd_reject) !=0:
-            print(f'Los confórmeros con Id {rmsd_reject} no se imprimirán en el .mop por ser iguales (Según el error de RMSD = {d_rmsd}) a {rmsd_no_reject} respectivamente y menos favorables energéticamente que los últimos mencionados.')
+            print(f'Los confórmeros con Id {rmsd_reject} no se imprimirán en el .mop por ser iguales (Según el error de RMSD = {rdkit_d_RMSD}) a {rmsd_no_reject} respectivamente y menos favorables energéticamente que los últimos mencionados.')
         if len(opt_reject) !=0:
             print(f'Los confórmeros con Id {opt_reject} no se imprimirán en el .mop pues no lograron ser optimizados.')
         to_use = list(set(ids) - reject)
@@ -78,13 +78,13 @@ def confgen(mol, d_rmsd, numConfs, numThreads = 0, optimization = False):
             for idx in ids:
                 if i < idx:
                     RMSD = AllChem.GetConformerRMS(molecule, i, idx, prealigned=True)
-                    if RMSD <= d_rmsd:
+                    if RMSD <= rdkit_d_RMSD:
                         rmsd_reject.add(ids[i])
                         rmsd_no_reject.add(ids[idx])
 
 
         if len(rmsd_reject) !=0:
-            print(f'Los confórmeros con Id {rmsd_reject} no se imprimirán en el .mop por ser iguales (Según el error de RMSD = {d_rmsd}) a {rmsd_no_reject} respectivamente y menos favorables energéticamente que los últimos mencionados.')
+            print(f'Los confórmeros con Id {rmsd_reject} no se imprimirán en el .mop por ser iguales (Según el error de RMSD = {rdkit_d_RMSD}) a {rmsd_no_reject} respectivamente y menos favorables energéticamente que los últimos mencionados.')
 
         to_use = list(set(ids) - rmsd_reject)
         return molecule, to_use, len(ids)*[None] # Because I did not optimize, then I add None
@@ -129,7 +129,7 @@ def makeimg(mols, **keywords):
 
 
 
-def main(suppl, numConfs = 10, d_rmsd = 0.2, optimization = False, numThreads = 0, mopac_kewords =  'PM7 precise ef xyz geo-ok t=3h EPS=78.4'):
+def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads = 0, mopac_keywords =  'PM7 precise ef xyz geo-ok t=3h THREADS = 2'): #EPS=78.4
     name = os.path.basename(suppl).split('.')[0]
     ext = os.path.basename(suppl).split('.')[-1]
     print('Resumen\n')
@@ -185,7 +185,7 @@ def main(suppl, numConfs = 10, d_rmsd = 0.2, optimization = False, numThreads = 
         
         print(f'Se están generando {numConfs} conformaciones para la molécula con Id = {i+1}...')
         
-        molecule, index, opt = confgen(mol[1], d_rmsd, numConfs, numThreads = numThreads, optimization = optimization)
+        molecule, index, opt = confgen(mol[1], rdkit_d_RMSD, numConfs, rdkit_numThreads = rdkit_numThreads, UFF = UFF)
         natoms = molecule.GetNumAtoms()
 
         sdf_writer = Chem.SDWriter(f"{mol[0]}.sdf")
@@ -218,7 +218,7 @@ def main(suppl, numConfs = 10, d_rmsd = 0.2, optimization = False, numThreads = 
                     sliced.append(c.split())
                 df = pd.DataFrame(sliced)
                 to_print = df[[3, 0, 1, 2]]
-                final.write(mopac_kewords+'\n')
+                final.write(mopac_keywords+'\n')
                 try:
                     comments = f"{mol[0]}   E_UFF = {round(float(opt[index[cont]]), 3)}"
                 except:
@@ -230,5 +230,6 @@ def main(suppl, numConfs = 10, d_rmsd = 0.2, optimization = False, numThreads = 
                 cont += 1
         print('Número de átomos: %d\n'% (natoms))
         final.close()
+    return [mol[0] for mol in mols]
     
 

@@ -127,13 +127,13 @@ def out_reader (out):
     ORDERED = sorted(paired, key=lambda x: x[1])  #Esto ordena la tupla segun la energia de menor a mayor
     return ORDERED
 
-def main(file_path, d_rmsd, d_E = None, out_path = None):
+def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
     """This function generates a table with the population of each conformer respect to a Boltzmann probability distribution.
 
     Args:
         file_path (path): arc or out file. It will be read with arc_reader or out_reader depending on the extension.
-        d_rmsd (float): Difference in RMSD (Angstrom) between the conformers. 1 gives good results.
-        d_E (float, optional): In case that also you need to screen with a threshold of energy, you specify the value in eV; 0.001 is a good choice. Defaults to None.
+        d_rmsd (float): Difference in RMSD (Angstrom) between the conformers. Defaults is 1.0.
+        d_E (float, optional): In case that also you need to screen with a threshold of energy, you specify the value in kcal/mol. Defaults to None.
         out_path (path): In case that you want to write down the table, the path for the file.
 
     Raises:
@@ -142,6 +142,7 @@ def main(file_path, d_rmsd, d_E = None, out_path = None):
 
     # d_E = 0.001
     # d_rmsd = 1.0
+    name = os.path.basename(file_path).split('.')[0]
     ext = os.path.basename(file_path).split('.')[-1]
     if ext == 'arc':
         ordered = (arc_reader(file_path))
@@ -150,7 +151,7 @@ def main(file_path, d_rmsd, d_E = None, out_path = None):
     else:
         raise ValueError(f"{file_path} does not have .arc or .out extension. Therefore is not readeable by ALEIMI.")
 
-    if d_E:
+    if Bd_E:
         for i, x in enumerate(range(len(ordered))):
             to_trash_degenerated = []
             for idx, y in enumerate(range(len(ordered))):
@@ -158,7 +159,7 @@ def main(file_path, d_rmsd, d_E = None, out_path = None):
                     Ei = ordered[i][1]
                     Eidx = ordered[idx][1]
                     delta = abs(Ei - Eidx)
-                    if delta <= d_E:
+                    if delta <= Bd_E:
     # =============================================================
     #     CHECKING Geometric degeneracy
     # =============================================================
@@ -167,7 +168,7 @@ def main(file_path, d_rmsd, d_E = None, out_path = None):
 
                         RMSD = rmsd.kabsch_rmsd(P, Q, translate = True)
 
-                        if RMSD <= d_rmsd:
+                        if RMSD <= Bd_rmsd:
                         # reject identical structure
                             to_trash_degenerated.append(idx)
 # =========================================================================
@@ -190,7 +191,7 @@ def main(file_path, d_rmsd, d_E = None, out_path = None):
 
                     RMSD = rmsd.kabsch_rmsd(P, Q, translate = True)
 
-                    if RMSD <= d_rmsd:
+                    if RMSD <= Bd_rmsd:
                         # reject identical structure and kept the lowest energy (because ordered() is ordered using the enrgy, so idx always will have a grater enrgy)
                         to_trash_degenerated.append(idx)
 
@@ -232,8 +233,8 @@ def main(file_path, d_rmsd, d_E = None, out_path = None):
     DF['Fraction_%__100*qi/q'] = Fraction
     #DF['Pi_b = (e^((-Ei)/kT))/Z'] = Pi_b
 
-    if out_path:
-        with open(out_path, 'wt') as rp:
+    if BOutPath:
+        with open(f"{name}.boltzmann", 'wt') as rp:
             DF.to_string(rp)
     return DF
 

@@ -12,12 +12,11 @@ DESCRIPTION   :
 DEPENDENCIES  :
 ===============================================================================
 """
-import os, subprocess, shutil, datetime, tempfile, time, tqdm
+import os, subprocess, shutil, datetime, tempfile, time, tqdm, inspect
 from matplotlib.pyplot import get_figlabels
 import numpy as np
 import multiprocessing as mp
 from glob import glob
-
 from mdynamic.tools import xvg
 #=======================================================================================
 
@@ -124,9 +123,9 @@ def run(command, shell = True, executable = '/bin/bash', Popen = False):
         process = subprocess.run(command, shell = shell, executable = executable)
     return process
 @timeit
-def mopac(mop, MopacExecutablePath = '/opt/mopac/MOPAC2016.exe', cpu = 0):
+def mopac(mop, mopacExecutablePath = '/opt/mopac/MOPAC2016.exe'):
     print(f"Mopac is running ...")
-    run(f"echo | {MopacExecutablePath} {mop}")
+    run(f"echo | {mopacExecutablePath} {mop}  > /dev/null 2>&1")
     print("Done!")
 
 
@@ -347,9 +346,16 @@ def KbT(absolute_temperature):
     """
     Kb = 8.314462618E-3 #kJ/(mol⋅K) (kNA)
     return absolute_temperature*Kb
+def get_default_args(func):
+    signature = inspect.signature(func)
+    return {
+        k: v.default
+        for k, v in signature.parameters.items()
+        if v.default is not inspect.Parameter.empty
+    }
 
-
-if __name__ == '__main__':   
-    pass
+if __name__ == '__main__':  
+    p = get_default_args(run)
+    print(type(p['shell']))
 
   
