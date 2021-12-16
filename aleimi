@@ -84,11 +84,16 @@ if __name__ == '__main__':
             except:
                 raise ValueError(f"{user_keywords[key]} must be a {type(extractor_keywords[key])}-like")
 
+    with open('outparams.params', 'w') as f:
+        used_keywords = {**confgen_keywords, **mopac_keywords, **boltzmann_keywords, **boltzmann_keywords}
+        for key in used_keywords:
+            f.write(f"{key:<35} = {used_keywords[key]:<20}\n")
 
     mol_names = confgen.main(suppl,**confgen_keywords)
     for mol_name in mol_names:
         tools.mopac(f"{mol_name}.mop",**mopac_keywords)
         boltzmann.main(f"{mol_name}.arc",**boltzmann_keywords)
         extractor.main(f"{mol_name}.arc",f"{mol_name}.boltzmann", **boltzmann_keywords)
+
     
 

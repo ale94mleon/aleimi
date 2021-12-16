@@ -142,8 +142,9 @@ def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
 
     # d_E = 0.001
     # d_rmsd = 1.0
-    name = os.path.basename(file_path).split('.')[0]
     ext = os.path.basename(file_path).split('.')[-1]
+    name = os.path.basename(file_path)[:-(len(ext) + 1)]
+    
     if ext == 'arc':
         ordered = (arc_reader(file_path))
     elif ext == 'out':

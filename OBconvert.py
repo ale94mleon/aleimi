@@ -15,11 +15,12 @@ DEPENDENCIES  : openbabel, glob
 
 from openbabel import openbabel as ob
 import glob as glob
-import os
+import os, tempfile
+from aleimi import tools
 
 
 
-def obconvert(inpath, outpath, AddHydrogens = False):
+def obconvert(inpath, outpath, AddHydrogens = False, obabel = 'obabel'):
     """Convert  molecule ussing openbabel
 
     Args:
@@ -27,15 +28,31 @@ def obconvert(inpath, outpath, AddHydrogens = False):
         output (str, path): must have the extention of the molecule.
     """
     in_ext = os.path.basename(inpath).split('.')[-1]
-    out_ext = os.path.basename(outpath).split('.')[-1]
+    out_ext = os.path.basename(outpath).split('.')[-1] 
 
-    obConversion = ob.OBConversion()
-    obConversion.SetInAndOutFormats(in_ext, out_ext)
-    mol = ob.OBMol()
-    obConversion.ReadFile(mol, inpath)   # Open Babel will uncompressed automatically
-    if AddHydrogens:
-        mol.AddHydrogens()
-    obConversion.WriteFile(mol, outpath)
+    if in_ext == 'pdbqt':
+        tmpfile = tempfile.NamedTemporaryFile(suffix='.pdb')
+
+        if AddHydrogens:
+            tools.run(f"""
+                    {obabel} {inpath} -O {tmpfile.name} -h > /dev/null 2>&1
+                    {obabel} {tmpfile.name} -O {outpath} -h > /dev/null 2>&1
+                    """)
+        else:
+            tools.run(f"""
+                    {obabel} {inpath} -O {tmpfile.name} > /dev/null 2>&1
+                    {obabel} {tmpfile.name} -O {outpath} > /dev/null 2>&1
+                    """)
+
+
+    else:
+        obConversion = ob.OBConversion()
+        obConversion.SetInAndOutFormats(in_ext, out_ext)
+        mol = ob.OBMol()
+        obConversion.ReadFile(mol, inpath)   # Open Babel will uncompressed automatically
+        if AddHydrogens:
+            mol.AddHydrogens()
+        obConversion.WriteFile(mol, outpath)
 
 
 if __name__ == '__main__':

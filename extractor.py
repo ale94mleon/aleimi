@@ -44,8 +44,9 @@ def extract(boltzmann_file, energy_cut = 2, conformer_cut = None):
     return indx_to_extract
 
 def get_coords(input_file, indx_to_extract):
-    file_name = os.path.basename(input_file).split('.')[0]
+    
     file_ext = os.path.basename(input_file).split('.')[-1]
+    file_name = os.path.basename(input_file)[:-(len(file_ext)+1)]
 
     if file_ext == 'arc':
         with open(input_file, 'rt', encoding='latin-1') as file:

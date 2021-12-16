@@ -130,8 +130,9 @@ def makeimg(mols, **keywords):
 
 
 def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads = 0, mopac_keywords =  'PM7 precise ef xyz geo-ok t=3h THREADS = 2'): #EPS=78.4
-    name = os.path.basename(suppl).split('.')[0]
+
     ext = os.path.basename(suppl).split('.')[-1]
+    name = os.path.basename(suppl)[:-(len(ext)+1)]
     print('Resumen\n')
     if ext == "smi":
         with open(suppl, 'rt') as file:
@@ -167,10 +168,10 @@ def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads
         print('The molecule will be internally converted to .mol using openbabel')
         tmpfile = tempfile.NamedTemporaryFile(suffix='.mol')
         OBconvert.obconvert(suppl, tmpfile.name)
-        mols = [(f"conf_{name}", Chem.MolFromMolFile(suppl))]
+        mols = [(f"conf_{name}", Chem.MolFromMolFile(tmpfile.name))]
     
     if None in [mol[1] for mol in mols]:
-        raise ValueError(f"{suppl} is not understand by RDKit")
+        raise ValueError(f"{suppl} is not understand by neither RDKit nor OpenBabel")
 
 
 
