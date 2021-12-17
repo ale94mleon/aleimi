@@ -1,8 +1,0 @@
-numConfs = 10
-rdkit_d_RMSD = 0.2
-UFF = True
-dkit_numThreads = 0
-mopac_keywords =  PM7 precise ef xyz geo-ok t=3h EPS=78.4
-Bd_rmsd = 1.0
-BOutPath = True
-energy_cut=1
