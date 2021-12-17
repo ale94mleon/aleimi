@@ -1,8 +1,7 @@
 *.pyc
-./examples
-./deprecated
-__pycache__
+examples/
+deprecated/
+__pycache__/
 .vscode
 .pytest_cache
 .ipynb_checkpoints
-.idea
