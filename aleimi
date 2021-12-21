@@ -17,6 +17,14 @@ from aleimi import confgen, boltzmann, extractor, tools
 import argparse
 import os
 
+"""
+Tengo que adicionar la parte de los comandos extras para pasarselos a exrtractor
+para la creacion de los templates, probar con los argumentos que se pasan 
+si alguno esta mal entonces dlanzar un warning o algo por el estilo
+Tengo que ver esto bien, me falta por implemnetar lo fde .gjf
+Y lo de el analisis para al menos psi4 y orca
+    """
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawTextHelpFormatter)

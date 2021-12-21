@@ -32,7 +32,6 @@ def obconvert(inpath, outpath, AddHydrogens = False, obabel = 'obabel'):
 
     if in_ext == 'pdbqt':
         tmpfile = tempfile.NamedTemporaryFile(suffix='.pdb')
-
         if AddHydrogens:
             tools.run(f"""
                     {obabel} {inpath} -O {tmpfile.name} -h > /dev/null 2>&1
@@ -43,6 +42,7 @@ def obconvert(inpath, outpath, AddHydrogens = False, obabel = 'obabel'):
                     {obabel} {inpath} -O {tmpfile.name} > /dev/null 2>&1
                     {obabel} {tmpfile.name} -O {outpath} > /dev/null 2>&1
                     """)
+        tools.rm(tmpfile.name)
 
 
     else:

@@ -24,6 +24,7 @@ import pandas as pd
 import os
 import tempfile
 from aleimi import OBconvert
+import tools
 
 #      CHECKING geometry degeneracy
 # La primera iteracion que corre por i busca que este optimizada la estructura
@@ -169,6 +170,7 @@ def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads
         tmpfile = tempfile.NamedTemporaryFile(suffix='.mol')
         OBconvert.obconvert(suppl, tmpfile.name)
         mols = [(f"conf_{name}", Chem.MolFromMolFile(tmpfile.name))]
+        tools.rm(tmpfile.name)
     
     if None in [mol[1] for mol in mols]:
         raise ValueError(f"{suppl} is not understand by neither RDKit nor OpenBabel")
