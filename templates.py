@@ -20,11 +20,12 @@ class INPUT:
         self.default_keywords = {
             'psi4':{
                 #Parameters for input
-                'level': 'MP2',
+                'theory': 'MP2',
                 'basis': '6-31+G*',
                 'memory': '10 GB',
                 'name': 'mol',
-                'charge_mult': '0 1',
+                'charge': 0,
+                'multiplicity': 1,
                 'PCM': False,
                 'coords': pd.DataFrame(),
                 'calc_type': 'optimize',
@@ -38,13 +39,14 @@ class INPUT:
                 'nice': 0,
                 'gpus': 0,
                 'mail_user': None,
-                'exclude': None   
+                'exclude': "fang[1,11-50]" #None
                 },
             'orca':{
-                'level': 'RI-MP2',
+                'theory': 'RI-MP2',
                 'basis': '6-31+G* def2-TZVP/C',
                 'name': 'mol',
-                'charge_mult': '0 1',
+                'charge': 0,
+                'multiplicity': 1,
                 'SMD': False,
                 'coords': pd.DataFrame(),
                 'calc_type': 'Opt',
@@ -60,14 +62,15 @@ class INPUT:
                 'nice': 0,
                 'gpus': 0,
                 'mail_user': None,
-                'exclude': None  
+                'exclude': "fang[1,11-50]" #None
                 },
             'gaussian':{
-                'level': 7,
+                'theory': 7,
                 'basis': 2,
                 'memory':4,
                 'name':5,
-                'charge_mult':3,
+                'charge':0,
+                'multiplicity':1,
                 'PCM': False,
                 'coords': None,
                 'calc_type':5,
@@ -82,10 +85,10 @@ class INPUT:
     
     def parse(self):
         if self.engine == 'psi4':
-            self.input += f"#! Computation at {self.keywords[self.engine]['level']}/{self.keywords[self.engine]['basis']} for {self.keywords[self.engine]['name']} \n\n"\
+            self.input += f"#! Computation at {self.keywords[self.engine]['theory']}/{self.keywords[self.engine]['basis']} for {self.keywords[self.engine]['name']} \n\n"\
             f"memory {self.keywords[self.engine]['memory']}\n\n"\
             f"molecule {self.keywords[self.engine]['name']} {'{'}\n"\
-            f"{self.keywords[self.engine]['charge_mult']}\n"\
+            f"{self.keywords[self.engine]['charge']} {self.keywords[self.engine]['multiplicity']}\n"\
             f"{self.keywords[self.engine]['coords'].to_string(header=False, index=False)}\n"
             if self.keywords[self.engine]['PCM']: self.input += "symmetry c1\n"
             self.input += "}\n\n"
@@ -111,12 +114,12 @@ class INPUT:
                 "   }\n"
             else:
                 self.input += f"set basis {self.keywords[self.engine]['basis']}\n"
-            self.input += f"{self.keywords[self.engine]['calc_type']}('{self.keywords[self.engine]['level']}')\n"
+            self.input += f"{self.keywords[self.engine]['calc_type']}('{self.keywords[self.engine]['theory']}')\n"
             if self.keywords[self.engine]['freq']:
-               self.input += f"{self.keywords[self.engine]['level']}_e, {self.keywords[self.engine]['level']}_wfn = frequencies('{self.keywords[self.engine]['level']}', return_wfn=True, dertype=1)\n"
+               self.input += f"{self.keywords[self.engine]['theory']}_e, {self.keywords[self.engine]['theory']}_wfn = frequencies('{self.keywords[self.engine]['theory']}', return_wfn=True, dertype=1)\n"
             self.input += f"with open('{self.keywords[self.engine]['name']}_psi4out.xyz', 'w') as f:\n"\
             f"\tf.write('{len(self.keywords[self.engine]['coords'])} ' )\n"\
-            f"\tf.write('%.12f\\n' % {self.keywords[self.engine]['level']}_e)\n"\
+            f"\tf.write('%.12f\\n' % {self.keywords[self.engine]['theory']}_e)\n"\
             f"\tf.write({self.keywords[self.engine]['name']}.save_string_xyz())"
 
             self.jobsh += "#!/bin/bash\n"\
@@ -161,20 +164,20 @@ class INPUT:
             "echo \"Job execution end: $(date)\""
  
         elif self.engine == 'orca':
-            self.input += f"#! Computation at {self.keywords[self.engine]['level']}/{self.keywords[self.engine]['basis']} for {self.keywords[self.engine]['name']}\n"\
+            self.input += f"#! Computation at {self.keywords[self.engine]['theory']}/{self.keywords[self.engine]['basis']} for {self.keywords[self.engine]['name']}\n"\
             f"%pal nprocs {self.keywords[self.engine]['ntasks']} end\n"
             if self.keywords[self.engine]['freq_type']:
                 self.input += f"%maxcore {self.keywords[self.engine]['maxcore']}\n\n"\
                 f"! {self.keywords[self.engine]['SCF_details']}\n"\
                 f"! {self.keywords[self.engine]['freq_type']}\n"
-            self.input += f"! {self.keywords[self.engine]['level']} {self.keywords[self.engine]['basis']}\n"\
+            self.input += f"! {self.keywords[self.engine]['theory']} {self.keywords[self.engine]['basis']}\n"\
             f"! {self.keywords[self.engine]['calc_type']}\n"
             if self.keywords[self.engine]['SMD']:
                 self.input += "%cpcm\n"\
                 "   smd true\n"\
                 "   SMDsolvent \"water\"\n"\
                 "end\n"
-            self.input += f"\n* xyz{self.keywords[self.engine]['charge_mult']}\n"\
+            self.input += f"\n* xyz {self.keywords[self.engine]['charge']} {self.keywords[self.engine]['multiplicity']}\n"\
             f"! {self.keywords[self.engine]['coords'].to_string(header=False, index=False)}\n*"
 
             self.jobsh += "#!/bin/bash\n"\
@@ -229,7 +232,7 @@ class INPUT:
             "cp $MY_TEMP_DIR/*.hess $SLURM_SUBMIT_DIR\n"\
             "cp $MY_TEMP_DIR/*_property.txt $SLURM_SUBMIT_DIR\n"\
             "cp $MY_TEMP_DIR/*.log $SLURM_SUBMIT_DIR\n\n"\
-            "#Deliting the scratch file. Normal delete on normal exit\n"\
+            "#Deleting the scratch file. Normal delete on normal exit\n"\
             "rm -rf $MY_TEMP_DIR\n\n"\
             "echo \"Job execution end: $(date)\""
         elif self.engine == 'gaussian':
@@ -247,9 +250,89 @@ class INPUT:
             else:
                 raise ValueError(f"{attribute} is not a correct attribute. Must be: 'input' or 'jobsh'")
 
+class PARAM:
+    def __init__(self, **keywords):
+        self.default_keywords = {
+                #Parameters for input
+                'theory': 'MP2',
+                'basis': 'aug-cc-pVTZ',
+                'memory': 14500,
+                'name': 'mol',
+                'environment': 'vacuum',
+                'charge': 0,
+                'coords': pd.DataFrame(),
+                'min-type': None,
+                'charge-type': 'ESP',
+                'scan-type': 'mm',
+                'dihed-fit-type': 'iterative',
+                'dihed-num-iterations': 100,
+                'outdir': 'outdir',
+                #Parameters for jobsh
+                'time': '2-00:00',
+                'ntasks': 12,
+                'cpus-per-task': 1,
+                'partition': 'deflt',
+                'nodes': 1,
+                'nice': 0,
+                'gpus': 0,
+                'mail_user': None,
+                'exclude': None}
+        self.keywords = copy.deepcopy(self.default_keywords)
+        for key in keywords:
+            self.keywords[key] = keywords[key]
+        self.jobsh = ''
+        self.parse()
+   
+    def parse(self):
+        self.jobsh += "#!/bin/bash\n"\
+        f"#SBATCH --partition {self.keywords['partition']}\n"\
+        f"#SBATCH --output myjob_{self.keywords['name']}.out\n"\
+        f"#SBATCH --error myjob_{self.keywords['name']}.err\n"\
+        f"#SBATCH --ntasks {self.keywords['ntasks']}\n"\
+        f"#SBATCH --cpus-per-task {self.keywords['cpus-per-task']}\n"\
+        f"#SBATCH --time {self.keywords['time']}\n"\
+        f"#SBATCH --job-name={self.keywords['name']}\n"\
+        f"#SBATCH --nodes {self.keywords['nodes']}\n"\
+        f"#SBATCH --nice={self.keywords['nice']}\n"\
+        f"#SBATCH --gpus={self.keywords['gpus']}\n"
+        if self.keywords['mail_user']:
+            self.jobsh += f"#SBATCH --mail-user={self.keywords['mail_user']}\n"
+        if self.keywords['exclude']:
+            self.jobsh +=f"#SBATCH --exclude={self.keywords['exclude']}\n"
+        
+        self.jobsh +="\n# This block is for the execution of the program\n"\
+        "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
+        "conda activate htmd\n\n"\
+        "# Creating local scratch folder for the user on the computing node.\n"\
+        "MY_TEMP_DIR=\"$(mktemp -d /localdisk/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"\
+        "# make sure the temp dir was created\n"\
+        "[ -d $MY_TEMP_DIR ] || exit 1\n"\
+        "# make sure to delete the directory on (erroneous) exit\n"\
+        "trap 'rm -rf -- \"$MY_TEMP_DIR\"' EXIT\n"\
+        "# export PSI_SCRATCH env variable\n"\
+        "export PSI_SCRATCH=$MY_TEMP_DIR\n\n"\
+        "# This block is echoing some SLURM variables\n"\
+        "echo \"Job execution start: $(date)\"\n"\
+        "echo \"Jobid = $SLURM_JOBID\"\n"\
+        "echo \"Host = $SLURM_JOB_NODELIST\"\n"\
+        "echo \"Jobname = $SLURM_JOB_NAME\"\n"\
+        "echo \"Subcwd = $SLURM_SUBMIT_DIR\"\n"\
+        "echo \"SLURM_CPUS_PER_TASK = $SLURM_CPUS_PER_TASK\"\n"\
+        "echo \"SLURM_CPUS_ON_NODE = $SLURM_CPUS_ON_NODE\"\n"\
+        "echo \"The temp file used was: $MY_TEMP_DIR\"\n\n"\
+        "#run paremeterize\n"\
+        f"parameterize ${{SLURM_JOB_NAME}}.mol2 --memory {self.keywords['memory']} --ncpus {self.keywords['ntasks'] * self.keywords['cpus-per-task']} --theory {self.keywords['theory']} --basis {self.keywords['basis']} --environment {self.keywords['environment']} --charge {self.keywords['charge']} --min-type {self.keywords['min-type']} --charge-type {self.keywords['charge-type']} --scan-type {self.keywords['scan-type']} --dihed-fit-type {self.keywords['dihed-fit-type']} --dihed-num-iterations {self.keywords['dihed-num-iterations']} --outdir {self.keywords['outdir']} "
+        "#Deleting the scratch file. Normal delete on normal exit\n"\
+        "rm -rf $MY_TEMP_DIR\n\n"\
+        "echo \"Job execution end: $(date)\""
+
+    def write(self, outpath = 'job.sh'):
+        with open(outpath, 'w') as f:
+            f.write(self.jobsh)
 
 
 if __name__ == '__main__':
 
-    s = INPUT('psi4')
+    s = PARAM()
+    s = INPUT('psi4', name =  'imi')
     print(s.input)
