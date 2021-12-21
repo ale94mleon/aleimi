@@ -334,5 +334,5 @@ class PARAM:
 if __name__ == '__main__':
 
     s = PARAM()
-    s = INPUT('psi4', name =  'imi')
+    s = INPUT('orca', name =  'imi')
     print(s.input)

@@ -17,6 +17,8 @@ import numpy as np
 from glob import glob
 import os
 from rmsd import kabsch_rmsd
+import tempfile
+from aleimi import OBconvert, templates, tools
 
 def psi4_out_read(out):
     """
@@ -73,7 +75,7 @@ def psi4_out_read(out):
     xyz2RMSD_H = np.array(xyz2RMSD_H, dtype=float)   
     return check_end, check_freq, E, G, exyz, xyz2RMSD_H
 
-def main(SubDirs = True, engine = 'psi4', xyz_out = False):
+def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = './parameterize'):
 
     if SubDirs:
         outs = [out for out in glob('*/*.out') if 'myjob' not in out]
@@ -135,6 +137,7 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False):
         if good:
             paired = list(zip(good, Gibbs_free_energies, coords, coord2RMSD_Hs)) 
             ORDERED = sorted(paired, key=lambda x: x[1])
+            coord_lower_energy[ORDERED[0][0].split('.')[0]] = ORDERED[0][2]
             to_print = []
             for i in range(len(ORDERED)):
                 to_print.append([ORDERED[i][0].split('_Cell_')[-1].split('.')[0], ORDERED[i][1]])
@@ -169,8 +172,6 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False):
                 with open(ORDERED[0][0].split('.')[0]+'.xyz', 'wt') as final:
                     final.write(str(len(ORDERED[0][2]))+'\n\n')
                     ORDERED[0][2].to_string(final, header=False, index=False)
-            else:
-                coord_lower_energy[ORDERED[0][0].split('.')[0]] = ORDERED[0][2]
 
         
     #======================================================================
@@ -178,7 +179,20 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False):
         print(f'Las cálculos: {wrong_freq} presentaron frecuencias negativas o imaginarias.')
     if wrong_end:
         print(f'Las cálculos: {wrong_end} presentaron problemas para un correcta finalizacion. Check the psi4 output!')
-    
+
+    if parameterize_path:
+        for conf in coord_lower_energy:
+            conf_path = os.path.join(parameterize_path, conf)
+            tools.makedirs(conf_path)
+            xyztmp = tempfile.NamedTemporaryFile(suffix='.xyz')
+            with open(xyztmp.name, 'w') as t:
+                t.write(f"{len(coord_lower_energy[conf])}\n\n")
+                coord_lower_energy[conf].to_string(t, header=False, index=False)
+            OBconvert.obconvert(xyztmp.name, os.path.join(conf_path, f"{conf}.mol2"))
+            templates.PARAM(name = conf).write(os.path.join(conf_path, f"{conf}.sh"))
+
+
+
     return coord_lower_energy
 
  
