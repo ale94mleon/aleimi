@@ -16,13 +16,15 @@ import rmsd
 import numpy as np
 import pandas as pd
 import os
+from aleimi import tools
+
 
 def arc_reader (arcf):
     with open(arcf, 'rt', encoding='latin-1') as a:
         lines = a.readlines()
     
     # getting data from arc                                                       #
-    HeatsOfFormation_kcalmol = []
+    HeatsOfFormation_kJmol = []
     cells = []
     Class_E = []
     # finding No. of atoms
@@ -39,7 +41,7 @@ def arc_reader (arcf):
     for i, line in enumerate(lines):
 
         if 'HEAT OF FORMATION' in line:
-            HeatsOfFormation_kcalmol.append(float(line.split()[-2]))
+            HeatsOfFormation_kJmol.append(float(line.split()[-2]))
        
         elif 'Empirical Formula' in line:
             try:
@@ -61,7 +63,7 @@ def arc_reader (arcf):
             CONTAINER__H.append(np.array(cart__H, dtype=np.float))
     #atoms = (np.asarray(atoms))
     # .... organizing
-    paired = list(zip(cells, HeatsOfFormation_kcalmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
+    paired = list(zip(cells, HeatsOfFormation_kJmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
     ORDERED = sorted(paired, key=lambda x: x[1])  #Esto ordena la tupla segun la energia de menor a mayor
     return ORDERED #, atoms]
 
@@ -71,7 +73,7 @@ def ignoreLines(f, n):
 def out_reader (out):
     f = open(out, 'r')
     chunk = []
-    HeatsOfFormation_kcalmol = []
+    HeatsOfFormation_kJmol = []
     cells = []
     Class_E = []
     CONTAINER__H = []
@@ -107,7 +109,7 @@ def out_reader (out):
                     cells.append(int(line.split(':')[1]))
                     
                 elif 'HEAT OF FORMATION' in line:
-                    HeatsOfFormation_kcalmol.append(float(line.split()[-2]))
+                    HeatsOfFormation_kJmol.append(float(line.split()[-2]))
                 elif 'CARTESIAN COORDINATES' in line:
                     ignoreLines(f, 1)
                     cont = 0
@@ -123,7 +125,7 @@ def out_reader (out):
             CONTAINER__H.append(np.array(cart__H, dtype=np.float))
     f.close
     # .... organizing
-    paired = list(zip(cells, HeatsOfFormation_kcalmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
+    paired = list(zip(cells, HeatsOfFormation_kJmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
     ORDERED = sorted(paired, key=lambda x: x[1])  #Esto ordena la tupla segun la energia de menor a mayor
     return ORDERED
 
@@ -209,16 +211,14 @@ def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
 #Me base en: James B. Foresman - Exploring Chemistry With Electronic Structure Methods 3rd edition (2015) pag 182
 # y Mortimer_Physical Chemistry_(3rd.ed.-2008) pag 1045    
 # =============================================================================
-    k = 0.0019872                              # Boltzmann Constant (kcal/mol*K)
     T = 298.15                                 # Absolute T (K)
-    DF = pd.DataFrame(columns=['cell','Class_E', 'HeatOfFormation_kcalmol', 'Emin_Ei',
-                               'qi__Pi/Pmin__e^(Emin_Ei)/kT','Fraction_%__100*qi/q'])
-    cells_und = [ordered[i][0] for i, x in enumerate(ordered)]
+    DF = pd.DataFrame()
+    cells = [ordered[i][0] for i, x in enumerate(ordered)]
     Class_E = [ordered[i][3] for i, x in enumerate(ordered)]
-    HeatsOfFormation_kcalmol = [ordered[i][1] for i, x in enumerate(ordered)]
-    MinHeatsOfFormation_kcalmol = min(HeatsOfFormation_kcalmol)
-    relative_kcal = [MinHeatsOfFormation_kcalmol - x for x in HeatsOfFormation_kcalmol]
-    qi = [np.e**(E_r/(k*T)) for E_r in relative_kcal]
+    HeatsOfFormation_kJmol = [ordered[i][1] for i, x in enumerate(ordered)]
+    MinHeatsOfFormation_kJmol = min(HeatsOfFormation_kJmol)
+    relative_kJ = [MinHeatsOfFormation_kJmol - x for x in HeatsOfFormation_kJmol]
+    qi = [np.exp(E_r/tools.KbT(T)) for E_r in relative_kJ]
     q = sum(qi)
     Fraction = [100*i/q for i in qi]
     #Z = [np.e**(-(E/(k*T))) for E in energy_kcal] #no pudo calcular Z: verflowError: (34, 'Result too large') 
@@ -226,13 +226,12 @@ def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
     # =============================================================================
     #     DATAFRAME
     # =============================================================================
-    DF['cell'] = cells_und
+    DF['cell'] = cells
     DF['Class_E'] = Class_E
-    DF['HeatOfFormation_kcalmol'] = HeatsOfFormation_kcalmol
-    DF['Emin_Ei'] = relative_kcal
-    DF['qi__Pi/Pmin__e^(Emin_Ei)/kT'] = qi
+    DF['HeatOfFormation_kJ/mol'] = HeatsOfFormation_kJmol
+    DF['Emin_Ei'] = relative_kJ
+    DF['qi__Pi/Pmin__e^(Emin_Ei)/KbT'] = qi
     DF['Fraction_%__100*qi/q'] = Fraction
-    #DF['Pi_b = (e^((-Ei)/kT))/Z'] = Pi_b
 
     if BOutPath:
         with open(f"{name}.boltzmann", 'wt') as rp:

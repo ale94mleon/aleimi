@@ -191,8 +191,6 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = '
             OBconvert.obconvert(xyztmp.name, os.path.join(conf_path, f"{conf}.mol2"))
             templates.PARAM(name = conf).write(os.path.join(conf_path, f"{conf}.sh"))
 
-
-
     return coord_lower_energy
 
  
