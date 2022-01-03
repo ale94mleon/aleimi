@@ -75,7 +75,7 @@ def psi4_out_read(out):
     xyz2RMSD_H = np.array(xyz2RMSD_H, dtype=float)   
     return check_end, check_freq, E, G, exyz, xyz2RMSD_H
 
-def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = './parameterize'):
+def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = './parameterize', machine = 'smaug'):
 
     if SubDirs:
         outs = [out for out in glob('*/*.out') if 'myjob' not in out]
@@ -189,7 +189,7 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = '
                 t.write(f"{len(coord_lower_energy[conf])}\n\n")
                 coord_lower_energy[conf].to_string(t, header=False, index=False)
             OBconvert.obconvert(xyztmp.name, os.path.join(conf_path, f"{conf}.mol2"))
-            templates.PARAM(name = conf).write(os.path.join(conf_path, f"{conf}.sh"))
+            templates.PARAM(machine=machine, name = conf).write(os.path.join(conf_path, f"{conf}.sh"))
 
     return coord_lower_energy
 

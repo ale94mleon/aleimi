@@ -121,6 +121,7 @@ def main(
     energy_cut = 2,
     conformer_cut = 0,
     engine = 'psi4',
+    machine = 'smaug',
     mkdir = True,
     jobsh = True,
     **keywords):
@@ -138,7 +139,7 @@ def main(
     indx_to_extract = extract(boltzmann_file, energy_cut = energy_cut, conformer_cut = conformer_cut)
     names_coords = get_coords(input_file, indx_to_extract)
     for name, coords in names_coords:
-        INPUT_obj = templates.INPUT(engine, name = name, coords = coords, **keywords)
+        INPUT_obj = templates.INPUT(engine, machine = machine, name = name, coords = coords, **keywords)
         if mkdir:
             tools.makedirs(name)
             INPUT_obj.write(os.path.join(name, f"{name}{InputExt}"),'input')
