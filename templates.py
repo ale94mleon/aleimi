@@ -149,13 +149,13 @@ class INPUT:
             self.jobsh +="\n# This block is for the execution of the program\n"
             if self.machine == 'smaug':
                 self.jobsh += "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
-                "conda activate htmd\n\n"
+                "conda activate htmd\n\n"\
                 "# Creating local scratch folder for the user on the computing node.\n"\
                 "MY_TEMP_DIR=\"$(mktemp -d /localdisk/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"
             elif self.machine == 'gwdg':
                 self.jobsh += "module load anaconda3/2020.07\n"\
                 "source /opt/sw/rev/20.12/haswell/gcc-9.3.0/anaconda3-2020.07-slbv7z/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
-                "conda activate htmd\n\n"
+                "conda activate htmd\n\n"\
                 "# Creating local scratch folder for the user on the computing node.\n"\
                 "MY_TEMP_DIR=\"$(mktemp -d /scratch/users/${USER}/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"
             else:
@@ -330,13 +330,13 @@ class PARAM:
         self.jobsh +="\n# This block is for the execution of the program\n"
         if self.machine == 'smaug':
             self.jobsh += "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
-            "conda activate htmd\n\n"
+            "conda activate htmd\n\n"\
             "# Creating local scratch folder for the user on the computing node.\n"\
             "MY_TEMP_DIR=\"$(mktemp -d /localdisk/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"
         elif self.machine == 'gwdg':
             self.jobsh += "module load anaconda3/2020.07\n"\
             "source /opt/sw/rev/20.12/haswell/gcc-9.3.0/anaconda3-2020.07-slbv7z/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
-            "conda activate htmd\n\n"
+            "conda activate htmd\n\n"\
             "# Creating local scratch folder for the user on the computing node.\n"\
             "MY_TEMP_DIR=\"$(mktemp -d /scratch/users/${USER}/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"
         else:
