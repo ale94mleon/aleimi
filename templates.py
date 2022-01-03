@@ -15,8 +15,12 @@ DEPENDENCIES  :
 import pandas as pd
 import copy
 class INPUT:
-    def __init__(self, engine, **keywords):
+    def __init__(self, engine, machine = 'smaug', **keywords):
         self.engine = engine
+        self.machine = machine
+        self.default_partition = {'smaug': 'deflt', 'gwdg': 'medium'}
+        self.default_exclude = {'smaug': "fang[1,11-50]", 'gwdg': None}
+        self.default_ntasks = {'smaug': 12, 'gwdg': 24}
         self.default_keywords = {
             'psi4':{
                 #Parameters for input
@@ -32,14 +36,14 @@ class INPUT:
                 'freq': True,
                 #Parameters for jobsh
                 'time': '2-00:00',
-                'ntasks': 12,
+                'ntasks': self.default_ntasks[self.machine],
                 'cpus-per-task': 1,
-                'partition': 'deflt',
+                'partition': self.default_partition[self.machine],
                 'nodes': 1,
                 'nice': 0,
                 'gpus': 0,
                 'mail_user': None,
-                'exclude': "fang[1,11-50]" #None
+                'exclude': self.default_exclude[self.machine],
                 },
             'orca':{
                 'theory': 'RI-MP2',
@@ -137,13 +141,27 @@ class INPUT:
                 self.jobsh += f"#SBATCH --mail-user={self.keywords[self.engine]['mail_user']}\n"
             if self.keywords[self.engine]['exclude']:
                 self.jobsh +=f"#SBATCH --exclude={self.keywords[self.engine]['exclude']}\n"
+
+            if self.machine == 'gwdg':
+                self.jobsh += f"#SBATCH -A all\n"\
+                "#SBATCH -C scratch\n"            
             
-            self.jobsh +="\n# This block is for the execution of the program\n"\
-            "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
-            "conda activate htmd\n\n"\
-            "# Creating local scratch folder for the user on the computing node.\n"\
-            "MY_TEMP_DIR=\"$(mktemp -d /localdisk/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"\
-            "# make sure the temp dir was created\n"\
+            self.jobsh +="\n# This block is for the execution of the program\n"
+            if self.machine == 'smaug':
+                self.jobsh += "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
+                "conda activate htmd\n\n"
+                "# Creating local scratch folder for the user on the computing node.\n"\
+                "MY_TEMP_DIR=\"$(mktemp -d /localdisk/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"
+            elif self.machine == 'gwdg':
+                self.jobsh += "module load anaconda3/2020.07\n"\
+                "source /opt/sw/rev/20.12/haswell/gcc-9.3.0/anaconda3-2020.07-slbv7z/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
+                "conda activate htmd\n\n"
+                "# Creating local scratch folder for the user on the computing node.\n"\
+                "MY_TEMP_DIR=\"$(mktemp -d /scratch/users/${USER}/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"
+            else:
+                pass
+
+            self.jobsh += "# make sure the temp dir was created\n"\
             "[ -d $MY_TEMP_DIR ] || exit 1\n"\
             "# make sure to delete the directory on (erroneous) exit\n"\
             "trap 'rm -rf -- \"$MY_TEMP_DIR\"' EXIT\n"\
@@ -164,6 +182,7 @@ class INPUT:
             "echo \"Job execution end: $(date)\""
  
         elif self.engine == 'orca':
+            #!! This is not implemented for GWDG
             self.input += f"#! Computation at {self.keywords[self.engine]['theory']}/{self.keywords[self.engine]['basis']} for {self.keywords[self.engine]['name']}\n"\
             f"%pal nprocs {self.keywords[self.engine]['ntasks']} end\n"
             if self.keywords[self.engine]['freq_type']:
@@ -251,7 +270,11 @@ class INPUT:
                 raise ValueError(f"{attribute} is not a correct attribute. Must be: 'input' or 'jobsh'")
 
 class PARAM:
-    def __init__(self, **keywords):
+    def __init__(self, machine = 'smaug', **keywords):
+        self.machine = machine
+        self.default_partition = {'smaug': 'deflt', 'gwdg': 'medium'}
+        self.default_exclude = {'smaug': "fang[1,11-50]", 'gwdg': None}
+        self.default_ntasks = {'smaug': 12, 'gwdg': 24}
         self.default_keywords = {
                 #Parameters for input
                 'theory': 'MP2',
@@ -269,14 +292,14 @@ class PARAM:
                 'outdir': 'outdir',
                 #Parameters for jobsh
                 'time': '2-00:00',
-                'ntasks': 12,
+                'ntasks': self.default_ntasks[self.machine],
                 'cpus-per-task': 1,
-                'partition': 'deflt',
+                'partition': self.default_partition[self.machine],
                 'nodes': 1,
                 'nice': 0,
                 'gpus': 0,
                 'mail_user': None,
-                'exclude': None}
+                'exclude': self.default_partition[self.machine]}
         self.keywords = copy.deepcopy(self.default_keywords)
         for key in keywords:
             self.keywords[key] = keywords[key]
@@ -299,13 +322,27 @@ class PARAM:
             self.jobsh += f"#SBATCH --mail-user={self.keywords['mail_user']}\n"
         if self.keywords['exclude']:
             self.jobsh +=f"#SBATCH --exclude={self.keywords['exclude']}\n"
+    
+        if self.machine == 'gwdg':
+            self.jobsh += f"#SBATCH -A all\n"\
+            "#SBATCH -C scratch\n"            
         
-        self.jobsh +="\n# This block is for the execution of the program\n"\
-        "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
-        "conda activate htmd\n\n"\
-        "# Creating local scratch folder for the user on the computing node.\n"\
-        "MY_TEMP_DIR=\"$(mktemp -d /localdisk/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"\
-        "# make sure the temp dir was created\n"\
+        self.jobsh +="\n# This block is for the execution of the program\n"
+        if self.machine == 'smaug':
+            self.jobsh += "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
+            "conda activate htmd\n\n"
+            "# Creating local scratch folder for the user on the computing node.\n"\
+            "MY_TEMP_DIR=\"$(mktemp -d /localdisk/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"
+        elif self.machine == 'gwdg':
+            self.jobsh += "module load anaconda3/2020.07\n"\
+            "source /opt/sw/rev/20.12/haswell/gcc-9.3.0/anaconda3-2020.07-slbv7z/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
+            "conda activate htmd\n\n"
+            "# Creating local scratch folder for the user on the computing node.\n"\
+            "MY_TEMP_DIR=\"$(mktemp -d /scratch/users/${USER}/psi4_${SLURM_JOBID}_$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXXXXX)\"\n"
+        else:
+            pass
+
+        self.jobsh += "# make sure the temp dir was created\n"\
         "[ -d $MY_TEMP_DIR ] || exit 1\n"\
         "# make sure to delete the directory on (erroneous) exit\n"\
         "trap 'rm -rf -- \"$MY_TEMP_DIR\"' EXIT\n"\
@@ -333,6 +370,6 @@ class PARAM:
 
 if __name__ == '__main__':
 
-    s = PARAM()
-    s = INPUT('orca', name =  'imi')
-    print(s.input)
+    s = PARAM(machine = 'gwdg')
+    #s = INPUT('psi4',machine = 'gwdg', name =  'imi')
+    print(s.jobsh)
