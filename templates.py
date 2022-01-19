@@ -547,14 +547,9 @@ class CONTINUE:
             raise Exception(f'The engine {self.engine} is not coded!')
         else:
             raise Exception(f'The engine {self.engine} is not coded!')
-    def write(self, outpath, attribute):
+    def write(self, outpath):
         with open(outpath, 'w') as f:
-            if attribute == 'input':
-                f.write(self.input)
-            elif attribute == 'jobsh':
-                f.write(self.jobsh)
-            else:
-                raise ValueError(f"{attribute} is not a correct attribute. Must be: 'input' or 'jobsh'")
+            f.write(self.jobsh)
 
 
 
