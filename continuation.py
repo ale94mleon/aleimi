@@ -13,7 +13,7 @@ DEPENDENCIES  :
 ===============================================================================
 """
 import os
-from aleimi import templates
+from aleimi import templates, tools
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
@@ -30,5 +30,9 @@ def main(directory, elapse, launch = False):
     for (i,elapsed_paths) in enumerate(chunks(all_paths, elapse)):
         T = templates.CONTINUE(elapsed_paths, machine = 'gwdg', name = f"elapse{i+1}")
         T.write(f"elapse{i+1}.sh")
+        if launch == True:
+            tools.job_launch(f"elapse{i+1}.sh")
+    
+
     
     
