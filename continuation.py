@@ -31,7 +31,7 @@ def main(directory, elapse, launch = False):
         T = templates.CONTINUE(elapsed_paths, machine = 'gwdg', name = f"elapse{i+1}")
         T.write(f"elapse{i+1}.sh")
         if launch == True:
-            tools.job_launch(f"elapse{i+1}.sh")
+            tools.run(f"sbatch elapse{i+1}.sh")
     
 
     
