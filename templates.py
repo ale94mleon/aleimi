@@ -299,7 +299,7 @@ class PARAM:
                 'nice': 0,
                 'gpus': 0,
                 'mail_user': None,
-                'exclude': self.default_partition[self.machine]}
+                'exclude': self.default_exclude[self.machine]}
         self.keywords = copy.deepcopy(self.default_keywords)
         for key in keywords:
             self.keywords[key] = keywords[key]
