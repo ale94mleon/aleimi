@@ -25,7 +25,7 @@ def main(directory, elapse, launch = False):
         root = os.path.abspath(root)
         if 'psi4.in' in files:
             if 'timer.dat' not in files:
-                all_paths.append(os.path.join(root, 'psi4.in'))
+                all_paths.append(root)
 
     for (i,elapsed_paths) in enumerate(chunks(all_paths, elapse)):
         T = templates.CONTINUE(elapsed_paths, machine = 'gwdg', name = f"elapse{i+1}")

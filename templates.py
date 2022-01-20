@@ -473,11 +473,8 @@ class CONTINUE:
             "echo \"SLURM_CPUS_PER_TASK = $SLURM_CPUS_PER_TASK\"\n"\
             "echo \"SLURM_CPUS_ON_NODE = $SLURM_CPUS_ON_NODE\"\n"\
             "echo \"The temp file used was: $MY_TEMP_DIR\"\n\n"
-            for path_and_file in self.elapsed_paths:
-                path, file = os.path.split(path_and_file)
-                name = file.split('.')[0]
-                self.jobsh += f'cd {path}\n'\
-                f"psi4 -i {name}.in -o {name}.out &> {name}.log\n"\
+            for path in self.elapsed_paths:
+                self.jobsh += f'cd {path}; bash run.sh; touch jobqueues.done\n'
 
             self.jobsh += "\n#Deleting the scratch file. Normal delete on normal exit\n"\
             "rm -rf $MY_TEMP_DIR\n\n"\
@@ -555,6 +552,6 @@ class CONTINUE:
 
 if __name__ == '__main__':
 
-    s = CONTINUE(['./psi4.in', 'klusef/fsdg/oi/psi4.in'],machine = 'gwdg', name = 'elapse1')
+    s = CONTINUE(['./68', 'klusef/fsdg/oi/'],machine = 'gwdg', name = 'elapse1')
     #s = INPUT('psi4',machine = 'gwdg', name =  'imi')
     print(s.jobsh)
