@@ -476,10 +476,10 @@ class CONTINUE:
             for path_and_file in self.elapsed_paths:
                 path, file = os.path.split(path_and_file)
                 name = file.split('.')[0]
-                self.jobsh += f"psi4 -i {os.path.join(path, name)}.in -o {os.path.join(path, name)}.out &> {os.path.join(path, name)}.log\n"\
+                self.jobsh += f'cd {path}\n'\
+                f"psi4 -i {name}.in -o {name}.out &> {name}.log\n"\
 
-            f"psi4 -i ${{SLURM_JOB_NAME}}.in -o ${{SLURM_JOB_NAME}}.out -n {self.keywords[self.engine]['ntasks'] * self.keywords[self.engine]['cpus-per-task']} #run command, in, out and number of threads to be used\n\n"\
-            "#Deliting the scratch file. Normal delete on normal exit\n"\
+            self.jobsh += "\n#Deleting the scratch file. Normal delete on normal exit\n"\
             "rm -rf $MY_TEMP_DIR\n\n"\
             "echo \"Job execution end: $(date)\""
  
