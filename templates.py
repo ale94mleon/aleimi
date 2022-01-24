@@ -474,7 +474,7 @@ class CONTINUE:
             "echo \"SLURM_CPUS_ON_NODE = $SLURM_CPUS_ON_NODE\"\n"\
             "echo \"The temp file used was: $MY_TEMP_DIR\"\n\n"
             for path in self.elapsed_paths:
-                self.jobsh += f'cd {path}; bash run.sh; touch jobqueues.done\n'
+                self.jobsh += f'cd {path} && bash run.sh && touch jobqueues.done\n'
 
             self.jobsh += "\n#Deleting the scratch file. Normal delete on normal exit\n"\
             "rm -rf $MY_TEMP_DIR\n\n"\

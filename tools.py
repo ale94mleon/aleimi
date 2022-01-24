@@ -337,6 +337,9 @@ def list_if_dir(path = '.'):
 def list_if_file(path = '.'):
     return [item for item in os.listdir(path) if os.path.isfile(os.path.join(path, item))]
 
+def touch(path):
+    with open(path, 'a'):
+        os.utime(path, None)
 
 def KbT(absolute_temperature):
     """Return the value of Kb*T in kJ/mol
