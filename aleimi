@@ -103,5 +103,20 @@ if __name__ == '__main__':
         boltzmann.main(f"{mol_name}.arc",**boltzmann_keywords)
         extractor.main(f"{mol_name}.arc",f"{mol_name}.boltzmann", **boltzmann_keywords)
 
+    """Seria muy interesante la parte de la busqueda de los conformeros integrarlo todo en 
+    un paso que lo que haga sea realizar una busqueda global del minimo
+    lo unico que hay que hacer es crear la funcion que codifique las conformaciones
+    en gtihub tengo un fork de una libreria que hace eso
+    Lo talloso aqui es que el usuario pudiese seleccionar cualquier metodo de optimizacion disponible 
+    en python, luego el mismo progrma avanzaria solo descubriendo las poblaciones 
+    te da la mejor poblacion te los ordena con una distribucion de boltzmann y luego tu decides cuales vas a pasar a la 
+    siguiente fase
+
+    Lo que pasa aqui es que como la funcion modificara la estructura la funcion tiene que actualizarse con las nuevas coordenadas
+    de este modo es correcta sino le asigna el valor de energia  a la estructura no optimizada.
+    Tal vez este paso sea complicado procesar para los metodos de python.
+    Pues tendra que tener algo que permita modificar el valor inicail y asignar el valor optenido de la optimizacion local
+
+    """
     
 
