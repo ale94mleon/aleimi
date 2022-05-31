@@ -59,4 +59,22 @@ aleimi.tools.mopac
 aleimi.boltzmann.main
 aleimi.extractor.main
 ```
-Here I had to add more description about it.
+A default param file will be filled with keyword = value lines, '#' at the beginning will be interpreted as comment lines and empty lines will be discarded. could be (in this case there is not need to specified because are the default options) like:
+```
+# For Mopac
+mopacExecutablePath = '/opt/mopac/MOPAC2016.exe'
+
+# For Boltzmann
+Bd_rmsd = 1.0
+Bd_E = 0.0
+BOutPath = True
+
+# For extractor
+energy_cut = 2,
+conformer_cut = 0,
+engine = 'psi4',
+machine = 'smaug',
+mkdir = True,
+jobsh = True,
+```
+You could also add some extra keywords that will pass to the `templates.INPUT` class that is in charge to construct the input files for the QM package. But this part is very specific and probably you will need to make some changes in the code that adjust to your necessities.
