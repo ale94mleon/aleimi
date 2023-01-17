@@ -11,6 +11,6 @@ If you use aleimi in your research, please cite the DOI corresponding to the rel
       - Release date
       - DOI
     * - Any
-      - 2022-07-10
-      - .. image:: https://zenodo.org/badge/547183955.svg
-          :target: https://zenodo.org/badge/latestdoi/547183955
+      - 2023-01-17
+      - .. image:: https://zenodo.org/badge/590033822.svg
+          :target: https://zenodo.org/badge/latestdoi/590033822
