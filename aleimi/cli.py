@@ -1,41 +1,34 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-===============================================================================
-Created on    : 2020-2023
-Author        : Alejandro Martínez León
-Mail          : [alejandro.martinezleon@uni-saarland.de, ale94mleon@gmail.com]
-Affiliation   : Jochen Hub's Biophysics Group
-Affiliation   : Faculty of NS, University of Saarland, Saarbrücken, Germany
-===============================================================================
-DESCRIPTION   :
-DEPENDENCIES  :
-===============================================================================
-"""
-
-from aleimi import confgen, boltzmann, extractor, tools
+from aleimi import confgen, boltzmann, extractor, tools, __version__
 import argparse
 import os
 
 """
 Tengo que adicionar la parte de los comandos extras para pasarselos a exrtractor
-para la creacion de los templates, probar con los argumentos que se pasan 
+para la creacion de los templates, probar con los argumentos que se pasan
 si alguno esta mal entonces dlanzar un warning o algo por el estilo
 Tengo que ver esto bien, me falta por implemnetar lo fde .gjf
 Y lo de el analisis para al menos psi4 y orca
     """
 
-if __name__ == '__main__':
+def _aleimi():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawTextHelpFormatter)
-    
-    parser.add_argument(help = "The path were the molecule(s) is(are)",
-                        dest='suppl',
-                        type=str)
-    parser.add_argument('-p', '--params',
-                        help = "Parameters to run ALEIMI",
-                        dest='params',
-                        type=str)
+
+    parser.add_argument(
+        help = "The path were the molecule(s) is(are)",
+        dest='suppl',
+        type=str)
+    parser.add_argument(
+        '-p', '--params',
+        help = "Parameters to run ALEIMI",
+        dest='params',
+        type=str)
+    parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version=f"aleimi: {__version__}")
 
     args = parser.parse_args()
 
@@ -45,12 +38,12 @@ if __name__ == '__main__':
         raise FileNotFoundError(f"{suppl} does not exist or is not accessible.")
     if not os.path.exists(params):
         raise FileNotFoundError(f"{params} does not exist or is not accessible.")
-    
+
 
 
     with open(params,'r') as f:
         lines = f.readlines()
-    
+
     user_keywords = {}
     for line in lines:
         if not line.startswith('#') and len(line.strip()):
@@ -102,21 +95,3 @@ if __name__ == '__main__':
         tools.mopac(f"{mol_name}.mop",**mopac_keywords)
         boltzmann.main(f"{mol_name}.arc",**boltzmann_keywords)
         extractor.main(f"{mol_name}.arc",f"{mol_name}.boltzmann", **boltzmann_keywords)
-
-    """Seria muy interesante la parte de la busqueda de los conformeros integrarlo todo en 
-    un paso que lo que haga sea realizar una busqueda global del minimo
-    lo unico que hay que hacer es crear la funcion que codifique las conformaciones
-    en gtihub tengo un fork de una libreria que hace eso
-    Lo talloso aqui es que el usuario pudiese seleccionar cualquier metodo de optimizacion disponible 
-    en python, luego el mismo progrma avanzaria solo descubriendo las poblaciones 
-    te da la mejor poblacion te los ordena con una distribucion de boltzmann y luego tu decides cuales vas a pasar a la 
-    siguiente fase
-
-    Lo que pasa aqui es que como la funcion modificara la estructura la funcion tiene que actualizarse con las nuevas coordenadas
-    de este modo es correcta sino le asigna el valor de energia  a la estructura no optimizada.
-    Tal vez este paso sea complicado procesar para los metodos de python.
-    Pues tendra que tener algo que permita modificar el valor inicail y asignar el valor optenido de la optimizacion local
-
-    """
-    
-

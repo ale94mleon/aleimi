@@ -1,0 +1,24 @@
+name: aleimi_conda
+channels:
+  - conda-forge
+  - anaconda
+  - defaults
+dependencies:
+  - ipykernel
+  - ipython
+  - ipywidgets
+  - pip
+  - python==3.9.*
+  - nbsphinx==0.8.7
+  - sphinx==4.1.2
+  - mopac
+  - openbabel
+  - pip:
+    - numpy
+    - pandas
+    - sklearn
+    - rmsd
+    - rdkit
+    - pytest
+    - recommonmark
+    - sphinx_rtd_theme
