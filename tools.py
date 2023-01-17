@@ -12,61 +12,11 @@ DESCRIPTION   :
 DEPENDENCIES  :
 ===============================================================================
 """
-import os, subprocess, shutil, datetime, tempfile, time, tqdm, inspect
-from matplotlib.pyplot import get_figlabels
+import os, subprocess, shutil, tempfile, time, inspect
 import numpy as np
 import multiprocessing as mp
 from glob import glob
-from mdynamic.tools import xvg
-#=======================================================================================
 
-#                          Miscellanea tools
-
-#=======================================================================================
-
-def zerolistmaker(n):
-    return [0]*n
-def unit_vector(vector):
-    """ Returns the unit vector of the vector.  """
-    return vector / np.linalg.norm(vector)
-
-def angle_between(v1, v2):
-    """ Returns the angle in radians between vectors 'v1' and 'v2'::
-
-            >>> angle_between((1, 0, 0), (0, 1, 0))
-            1.5707963267948966
-            >>> angle_between((1, 0, 0), (1, 0, 0))
-            0.0
-            >>> angle_between((1, 0, 0), (-1, 0, 0))
-            3.141592653589793
-    """
-    v1_u = unit_vector(v1)
-    v2_u = unit_vector(v2)
-    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
-def aovec(vectors, round = None):
-    """Return the average oriented vector
-    Calculate all the angles respect to the cartessina axis and average the angles,andthen return the unitary vector
-    ang(vec, x) = mean(ang(vectors_i, x))
-    ang(vec, y) = mean(ang(vectors_i, y))
-    ang(vec, z) = mean(ang(vectors_i, z))
-    vec = (cos(ang(vec, x); cos(ang(vec, y); cos(ang(vec, z))
-    Args:
-        vectors ([type]): [description]
-        round ([type]): [description]
-    Returns:
-        [type]: [description]
-    """
-    vectors = [np.asarray(v) for v in vectors]
-    #Dimension of the vectors, how many components
-    vec = np.empty(vectors[0].shape)
-    for i in range(vectors[0].shape[0]):
-        zero_vector = np.zeros(vectors[0].shape)
-        zero_vector[i] = 1
-        vec[i] = np.cos(np.mean([angle_between(vector, zero_vector) for vector in vectors]))
-
-    vec = unit_vector(vec)
-    if round: vec = np.round(vec, round)
-    return vec
 
 
 
@@ -84,30 +34,6 @@ def timeit(method):
         return result
     return timed
 
-#=======================================================================================
-
-#                          Tools for execution
-
-#=======================================================================================
-def multi_run(commands, nPar, shell = True, executable = '/bin/bash'):
-    """This will run as many runs as nPar.
-
-    Args:
-        commands (list): A list of string to be run in the specified shell.
-        nPar (int): How many processes are running simultaneously
-        shell (bool, optional): belongs to run(). Defaults to True.
-        executable (str, optional): belongs to tun(). Defaults to '/bin/bash'.
-        Popen (bool, optional): belongs to run(). Defaults to False.
-    """
-
-    tmp_cmds = []
-    for cmd in commands:
-        tmp_cmds.append(run(cmd, shell = shell, executable = executable, Popen = True))
-        if len(tmp_cmds) >= nPar:
-            print(f"{len(tmp_cmds)} running, now waiting...")
-            for tmp_cmd in tmp_cmds:
-                tmp_cmd.wait()
-            tmp_cmds = []
         
 
 def run(command, shell = True, executable = '/bin/bash', Popen = False):
@@ -122,24 +48,13 @@ def run(command, shell = True, executable = '/bin/bash', Popen = False):
     else:
         process = subprocess.run(command, shell = shell, executable = executable)
     return process
+
 @timeit
 def mopac(mop, mopacExecutablePath = '/opt/mopac/MOPAC2016.exe'):
     print(f"Mopac is running ...")
     run(f"echo | {mopacExecutablePath} {mop}  > /dev/null 2>&1")
     print("Done!")
 
-
-def checkrun():
-    """Check for the running process on the cluster.
-
-    Returns:
-        list of integers: The integers that identify the running process on the cluster.
-    """
-    tmp = tempfile.NamedTemporaryFile()
-    run(f"squeue -u $USER --format=%.i > {tmp.name}")
-    with open(tmp.name, "r") as f:
-        lines = f.readlines()
-    return [int(item.strip()) for  item in lines[1:]]#The first line is the string "JOBID"
 
 def job_launch(shell="sbatch", script_name = "job.sh"):
     """
@@ -185,31 +100,6 @@ def job_launch(shell="sbatch", script_name = "job.sh"):
     return JOBIDs
 
 
-def backoff(file_path):
-    """
-    
-
-    Parameters
-    ----------
-    file : TYPE string
-        DESCRIPTION: The name or the path f     or the specific file
-
-    Returns
-    -------
-    None.
-    If the file already exist. it will made a back up to ./#{file}.{str(i)}#,
-    Where i is an integer.
-    """
-    basname = os.path.basename(file_path)
-    dirname = os.path.dirname(file_path)
-    if os.path.exists(file_path):
-        new_basname = basname
-        i = 1
-        while(os.path.exists(os.path.join(dirname, new_basname))):
-            new_basname = f"./#{basname}.{str(i)}#"
-            i += 1
-        print(f"Back Off! I just backed up {file_path} to {os.path.join(dirname, new_basname)}")
-        shutil.copy2(file_path, os.path.join(dirname, new_basname))
 #=======================================================================================
 
 #                          Tools for working with files
@@ -330,16 +220,6 @@ def cp(src, dest, r = False):
 def mv(src, dest, r = False):
     cp(src, dest, r = r)
     rm(src,r=r)
-
-def list_if_dir(path = '.'):
-    return [item for item in os.listdir(path) if os.path.isdir(os.path.join(path, item))]
-
-def list_if_file(path = '.'):
-    return [item for item in os.listdir(path) if os.path.isfile(os.path.join(path, item))]
-
-def touch(path):
-    with open(path, 'a'):
-        os.utime(path, None)
 
 def KbT(absolute_temperature):
     """Return the value of Kb*T in kJ/mol
