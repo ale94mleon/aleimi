@@ -59,7 +59,7 @@ def arc_reader (arcf):
                 if c.split()[0] != 'H':
                     cart__H.append([c.split()[1], c.split()[3], c.split()[5]]) # No estoy tomando los atomos, solamente coordenadas c.split()[0].strip(),
             #CONTAINER.append(np.asarray(pd.DataFrame(cart)))
-            CONTAINER__H.append(np.array(cart__H, dtype=np.float))
+            CONTAINER__H.append(np.array(cart__H, dtype=np.float64))
     #atoms = (np.asarray(atoms))
     # .... organizing
     paired = list(zip(cells, HeatsOfFormation_kcalmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
@@ -121,7 +121,7 @@ def out_reader (out):
                         if c.split()[1] != 'H':
                             cart__H.append([c.split()[2], c.split()[3], c.split()[4]]) # No estoy tomando los atomos, solamente coordenadas c.split()[0].strip(),
 
-            CONTAINER__H.append(np.array(cart__H, dtype=np.float))
+            CONTAINER__H.append(np.array(cart__H, dtype=np.float64))
     f.close
     # .... organizing
     paired = list(zip(cells, HeatsOfFormation_kcalmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos

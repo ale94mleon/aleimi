@@ -50,9 +50,9 @@ def run(command, shell = True, executable = '/bin/bash', Popen = False):
     return process
 
 @timeit
-def mopac(mop, mopacExecutablePath = '/opt/mopac/MOPAC2016.exe'):
+def mopac(mop):
     print(f"Mopac is running ...")
-    run(f"echo | {mopacExecutablePath} {mop}  > /dev/null 2>&1")
+    run(f"mopac {mop}  > /dev/null 2>&1")
     print("Done!")
 
 
