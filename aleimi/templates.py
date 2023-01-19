@@ -86,7 +86,7 @@ class INPUT:
         self.input = ''
         self.jobsh = ''
         self.parse()
-    
+
     def parse(self):
         if self.engine == 'psi4':
             self.input += f"#! Computation at {self.keywords[self.engine]['theory']}/{self.keywords[self.engine]['basis']} for {self.keywords[self.engine]['name']} \n\n"\
@@ -144,8 +144,8 @@ class INPUT:
 
             if self.machine == 'gwdg':
                 self.jobsh += f"#SBATCH -A all\n"\
-                "#SBATCH -C scratch\n"            
-            
+                "#SBATCH -C scratch\n"
+
             self.jobsh +="\n# This block is for the execution of the program\n"
             if self.machine == 'smaug':
                 self.jobsh += "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
@@ -180,7 +180,7 @@ class INPUT:
             "#Deliting the scratch file. Normal delete on normal exit\n"\
             "rm -rf $MY_TEMP_DIR\n\n"\
             "echo \"Job execution end: $(date)\""
- 
+
         elif self.engine == 'orca':
             #!! This is not implemented for GWDG
             self.input += f"#! Computation at {self.keywords[self.engine]['theory']}/{self.keywords[self.engine]['basis']} for {self.keywords[self.engine]['name']}\n"\
@@ -214,7 +214,7 @@ class INPUT:
                 self.jobsh += f"#SBATCH --mail-user={self.keywords[self.engine]['mail_user']}\n"
             if self.keywords[self.engine]['exclude']:
                 self.jobsh +=f"#SBATCH --exclude={self.keywords[self.engine]['exclude']}\n"
-            
+
             self.jobsh +="\n# This block is for the execution of the program\n"\
             "# Setting OPENMPI paths here:\n"\
             "export PATH=\"/data/shared/opt/ORCA/openmpi314/bin:$PATH\"\n"\
@@ -273,7 +273,7 @@ class PARAM:
     def __init__(self, machine = 'smaug', **keywords):
         self.machine = machine
         self.default_partition = {'smaug': 'deflt', 'gwdg': 'medium'}
-        self.default_exclude = {'smaug': "fang[1,11-50]", 'gwdg': None}
+        self.default_exclude = {'smaug': "fang[1,11-55]", 'gwdg': None}
         self.default_ntasks = {'smaug': 12, 'gwdg': 24}
         self.default_keywords = {
                 #Parameters for input
@@ -297,7 +297,7 @@ class PARAM:
                 'partition': self.default_partition[self.machine],
                 'nodes': 1,
                 'nice': 0,
-                'gpus': 0,
+                'gpus': 1,
                 'mail_user': None,
                 'exclude': self.default_exclude[self.machine]}
         self.keywords = copy.deepcopy(self.default_keywords)
@@ -305,7 +305,7 @@ class PARAM:
             self.keywords[key] = keywords[key]
         self.jobsh = ''
         self.parse()
-   
+
     def parse(self):
         self.jobsh += "#!/bin/bash\n"\
         f"#SBATCH --partition {self.keywords['partition']}\n"\
@@ -322,11 +322,11 @@ class PARAM:
             self.jobsh += f"#SBATCH --mail-user={self.keywords['mail_user']}\n"
         if self.keywords['exclude']:
             self.jobsh +=f"#SBATCH --exclude={self.keywords['exclude']}\n"
-    
+
         if self.machine == 'gwdg':
             self.jobsh += f"#SBATCH -A all\n"\
-            "#SBATCH -C scratch\n"            
-        
+            "#SBATCH -C scratch\n"
+
         self.jobsh +="\n# This block is for the execution of the program\n"
         if self.machine == 'smaug':
             self.jobsh += "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
@@ -375,7 +375,7 @@ class CONTINUE:
         self.engine = engine
         self.machine = machine
         self.default_partition = {'smaug': 'deflt', 'gwdg': 'medium'}
-        self.default_exclude = {'smaug': "fang[1,11-50]", 'gwdg': None}
+        self.default_exclude = {'smaug': "fang[1,11-55]", 'gwdg': None}
         self.default_ntasks = {'smaug': 12, 'gwdg': 24}
         self.default_keywords = {
             'psi4':{
@@ -386,7 +386,7 @@ class CONTINUE:
                 'partition': self.default_partition[self.machine],
                 'nodes': 1,
                 'nice': 0,
-                'gpus': 0,
+                'gpus': 1,
                 'mail_user': None,
                 'exclude': self.default_exclude[self.machine],
                 },
@@ -398,9 +398,9 @@ class CONTINUE:
                 'partition': 'deflt',
                 'nodes': 1,
                 'nice': 0,
-                'gpus': 0,
+                'gpus': 1,
                 'mail_user': None,
-                'exclude': "fang[1,11-50]" #None
+                'exclude': "fang[1,11-55]" #None
                 },
             'gaussian':{
                 'theory': 7,
@@ -419,7 +419,7 @@ class CONTINUE:
             self.keywords[engine][key] = keywords[key]
         self.jobsh = ''
         self.parse()
-    
+
     def parse(self):
         if self.engine == 'psi4':
 
@@ -441,8 +441,8 @@ class CONTINUE:
 
             if self.machine == 'gwdg':
                 self.jobsh += f"#SBATCH -A all\n"\
-                "#SBATCH -C scratch\n"            
-            
+                "#SBATCH -C scratch\n"
+
             self.jobsh +="\n# This block is for the execution of the program\n"
             if self.machine == 'smaug':
                 self.jobsh += "source /home/users/all-jh/opt/miniconda3/etc/profile.d/conda.sh #It is needed to use the conda activate command\n"\
@@ -479,7 +479,7 @@ class CONTINUE:
             self.jobsh += "\n#Deleting the scratch file. Normal delete on normal exit\n"\
             "rm -rf $MY_TEMP_DIR\n\n"\
             "echo \"Job execution end: $(date)\""
- 
+
         elif self.engine == 'orca':
             raise Exception(f'The engine {self.engine} is not coded!')
             # Not implemented
@@ -498,7 +498,7 @@ class CONTINUE:
                 self.jobsh += f"#SBATCH --mail-user={self.keywords[self.engine]['mail_user']}\n"
             if self.keywords[self.engine]['exclude']:
                 self.jobsh +=f"#SBATCH --exclude={self.keywords[self.engine]['exclude']}\n"
-            
+
             self.jobsh +="\n# This block is for the execution of the program\n"\
             "# Setting OPENMPI paths here:\n"\
             "export PATH=\"/data/shared/opt/ORCA/openmpi314/bin:$PATH\"\n"\
