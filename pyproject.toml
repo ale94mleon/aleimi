@@ -14,7 +14,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "aleimi"
 dynamic = ["version"]
-description = "A python package for conformational analysis of small molecules at classic/semi-empirical/high-QM level of theories."
+description = "Stochastic Conformation Analysis at semi empirical level with ab initio refinement for small molecules"
 readme = "README.rst"
 
 authors=[
