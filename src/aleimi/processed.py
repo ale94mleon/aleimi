@@ -59,7 +59,7 @@ def psi4_out_read(out:str):
     xyz2RMSD_H = np.array(xyz2RMSD_H, dtype=float)
     return check_end, check_freq, E, G, exyz, xyz2RMSD_H
 
-def main(SubDirs:bool = True, engine:str = 'psi4', xyz_out:bool = False) -> np.array:
+def main(SubDirs:bool = True, engine:str = 'psi4', xyz_out:bool = False) -> dict:
     """Process the output of the QM calculations generated through :meth:`aleimi.extractor.main`.
     This function is quiet limited for now, Only useful for psi4 engine.
 
@@ -74,8 +74,8 @@ def main(SubDirs:bool = True, engine:str = 'psi4', xyz_out:bool = False) -> np.a
 
     Returns
     -------
-    np.array
-        The 3D coordinates
+    dict
+        conf_name: 3D_coordinates
 
     Raises
     ------

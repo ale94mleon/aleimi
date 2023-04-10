@@ -26,7 +26,7 @@ aleimi
 
 
 Description
-~~~~~~~~~~~
+-----------
 
 ``aleimi`` is a versatile Python package designed for performing conformational analysis of small molecules.
 The package utilizes a range of theories, including classical mechanics, semiempirical, and high-level quantum mechanics,
@@ -37,24 +37,25 @@ to provide comprehensive and accurate analyses of molecular conformations.
     Please be aware that ``aleimi`` is currently undergoing heavy development, which may result in significant changes to the codebase without prior notice.
     Therefore, we advise caution when using the package. We strongly recommend that you always pin your version of the package to ensure that your pipelines are not broken.
 
+You can try it out prior to any installation on `Binder <https://mybinder.org/v2/git/https%3A%2F%2Fgithub.com%2Fale94mleon%2Faleimi/main?labpath=docs%2Fnotebooks%2Fquickstart.ipynb>`__.
 
 Documentation
-~~~~~~~~~~~~~
+-------------
 
 The installation instructions, documentation and tutorials can be found online on `ReadTheDocs <https://aleimi.readthedocs.io/en/latest/>`_.
 
 Issues
-~~~~~~
+------
 
 If you have found a bug, please open an issue on the `GitHub Issues <https://github.com/ale94mleon/aleimi/issues>`_.
 
 Discussion
-~~~~~~~~~~
+----------
 
 If you have questions on how to use ``aleimi``, or if you want to give feedback or share ideas and new features, please head to the `GitHub Discussions <https://github.com/ale94mleon/aleimi/discussions>`_.
 
 Citing aleimi
-~~~~~~~~~~~~~
+-------------
 
 Please refer to the `citation page <https://aleimi.readthedocs.io/en/latest/source/citations.html>`__ on the documentation.
 
