@@ -18,30 +18,27 @@ from aleimi import templates, utils
 
 
 def ignoreLines(f, n):
-    for i in range(n): f.readline()
+    for _ in range(n): f.readline()
 
 #def extract(arc_file, boltzmann_file, energy_cut = 2, conformer_cut = None, mksh = True, mkdir = True):
 # Energy cut is in kcal/mol
 def extract(boltzmann_file, energy_cut = 2, conformer_cut = None):
+
+    df = pd.read_csv(boltzmann_file)
+    indx_to_extract = []
     if energy_cut:
-        df = pd.read_table(boltzmann_file, sep='\s+')
         df_subset = df[df.Emin_Ei >= -energy_cut]
-        indx_to_extract = df_subset.cell.tolist()    
-        indx_to_extract = sorted(indx_to_extract)
+        indx_to_extract += df_subset.cell.tolist()
 
-        
-    elif conformer_cut:
-        df = pd.read_table(boltzmann_file, sep='\s+')
+    if conformer_cut:
         df_subset = df.iloc[:conformer_cut]
-        indx_to_extract = df_subset.cell.tolist()    
-        indx_to_extract = sorted(indx_to_extract)        
+        indx_to_extract += df_subset.cell.tolist()
 
-    else:
-        df = pd.read_table(boltzmann_file, sep='\s+')
+    if not energy_cut and not conformer_cut:
         df_subset = df.iloc[:]
-        indx_to_extract = df_subset.cell.tolist()    
-        indx_to_extract = sorted(indx_to_extract)        
-    return indx_to_extract
+        indx_to_extract += df_subset.cell.tolist()
+
+    return sorted(indx_to_extract)
 
 def get_coords(input_file, indx_to_extract):
     
