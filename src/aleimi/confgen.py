@@ -1,15 +1,19 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Toma de un archivo .smi los SMILES, genera la cant de conformeros seleccionados
-e imprime tanto los .sdf con todos los conformeros como .mop para optimizar en MOPAC
-con el nivel de teoria seleccionado.
-"""
+
+
+# TODO
+# Toma de un archivo .smi los SMILES, genera la cant de conformeros seleccionados
+# e imprime tanto los .sdf con todos los conformeros como .mop para optimizar en MOPAC
+# con el nivel de teoria seleccionado.
+
 
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 import pandas as pd
 import os
+from typing import List
 
 #      CHECKING geometry degeneracy
 # La primera iteracion que corre por i busca que este optimizada la estructura
@@ -18,7 +22,29 @@ import os
 #y no la ve el segundo ciclo
 #pero el primero cuando llegue a ella la vera y tomara su id
 # =============================================================================
-def confgen(mol, rdkit_d_RMSD, numConfs, rdkit_numThreads = 0, UFF = False):
+def confgen(mol:Chem.rdchem.Mol, rdkit_d_RMSD:float, numConfs:int, rdkit_numThreads:float = 0, UFF:bool = False):
+    """Generate conformers stochastically for mol and filter them out based on geometrical and energetic criterions.
+
+    Parameters
+    ----------
+    mol : Chem.rdchem.Mol
+        The RDKit molecule for which the stochastic conformations will be generated.
+    rdkit_d_RMSD : float
+        RMSD to filter out redundant conformations, geometric filter.
+    numConfs : int
+        Maximum number of conformation to generate
+    rdkit_numThreads : float, optional
+        Number of CPUs to use, by default 0 (use all)
+    UFF : bool, optional
+        If True a classical mechanical optimization will be performed, by default False
+
+    Returns
+    -------
+    tuple
+        * RDKit molecule with conformations, the hydrogens are always added.
+        * Index of conformer to use.
+        * List of classic energies if UFF = True, if not, a list of None values with length, number of conformers.
+    """
     molecule = Chem.AddHs(mol)
     ids = AllChem.EmbedMultipleConfs(molecule, numConfs=numConfs, numThreads=rdkit_numThreads)
     if UFF:
@@ -79,7 +105,15 @@ def confgen(mol, rdkit_d_RMSD, numConfs, rdkit_numThreads = 0, UFF = False):
 #exportar las imagenes de la mejor manera posible. en columnas de 1,2,3,4 o 5
 # =============================================================================
 
-def makeimg(mols, **keywords):
+def makeimg(mols:List[Chem.rdchem.Mol], **keywords):
+    """Simple function to create a picture of the input molecules.
+    The file ``used_mols.png`` will be createad.
+
+    Parameters
+    ----------
+    mols : List[Chem.rdchem.Mol]
+        list of molecules
+    """
 
     ms = [mol for mol in mols if mol is not None]
     _ = [AllChem.Compute2DCoords(m) for m in ms]
@@ -108,18 +142,51 @@ def makeimg(mols, **keywords):
 
     img=Draw.MolsToGridImage(ms,molsPerRow=best,subImgSize=(700,700), legends=legends)
     if len(ms) > 1:
-        img.save('Molecules used.png')
+        img.save('used_mols.png')
     else:
         img.save(f'{legends[0]}.png')
 
 
 
-def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads = 0, mopac_keywords =  'PM7 precise ef xyz geo-ok t=3h THREADS = 2'): #EPS=78.4
+def main(suppl:str, numConfs:int = 10, rdkit_d_RMSD:float = 0.2, UFF:bool = False, rdkit_numThreads:int = 0, mopac_keywords:str =  'PM7 precise ef xyz geo-ok t=3h THREADS = 2') -> List[str]: #EPS=78.4
+    """Generate conformers stochastically for the supplied molecules and filter them out based on geometrical and energetic criterions.
 
-    ext = os.path.basename(suppl).split('.')[-1]
-    name = os.path.basename(suppl)[:-(len(ext)+1)]
+    Parameters
+    ----------
+    suppl : str
+        Path for the molecule file. It could be:.pdb, .mol2, .mol, .sdf, .smi. In case of .smi you can define several SMILES.
+        and for all of them the configuration will be generated.
+        TODO: do the same for sdf files
+    numConfs : int, optional
+        Maximum number of conformation to generate, by default 10
+    rdkit_d_RMSD : float, optional
+        RMSD to filter out redundant conformations, geometric filter, by default 0.2
+    UFF : bool, optional
+        If True a classical mechanical optimization will be performed, by default False
+    rdkit_numThreads : int, optional
+        Number of CPUs to use, by default 0 (use all)
+    mopac_keywords : str, optional
+        This is head of a .mop file, basically a definition of the sei-empirical job. Check
+        the `MOPAC Documentation <http://openmopac.net/>`_ for more information , by default 'PM7 precise ef xyz geo-ok t=3h THREADS = 2'
+
+    Returns
+    -------
+    List[str]
+        List of names of the used molecules
+
+    Raises
+    ------
+    ValueError
+        If in the .smi there are invalid SMILES
+    ValueError
+        If the extension of molecule is not: .pdb, .mol2, .mol, .sdf or .smi.
+    ValueError
+        If the molecule was not understood by RDKit
+    """
+
+    name, ext = os.path.splitext(os.path.basename(suppl))
     print('Resumen\n')
-    if ext == "smi":
+    if ext == ".smi":
         with open(suppl, 'rt') as file:
             smiles = file.readlines()
 
@@ -130,34 +197,33 @@ def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads
         Errors_mols = []
         for i, item in enumerate(smiles):
             try:
-                posibble_molecule = (Chem.MolFromSmiles(item))
-                posibble_molecule.GetNumAtoms()
+                Chem.MolFromSmiles(item).GetNumAtoms()
             except:
                 Errors_mols.append(i+1)
         if len(Errors_mols) !=  0:
             raise ValueError(f'Las moléculas con Ids: {Errors_mols} no son estructuras SMILES correctas para RDKit. Por favor, retirelas del .smi.')
 
 
-        mols = [(f'conf_mol_{i+1}', Chem.MolFromSmiles(smile)) for (i,smile) in enumerate(smiles)]
-    elif ext == 'pdb':
+        mols = [(f'conf_{name}_{i+1}', Chem.MolFromSmiles(smile)) for (i,smile) in enumerate(smiles)]
+    elif ext == '.pdb':
         mols = [(f"conf_{name}", Chem.MolFromPDBFile(suppl))]
-    elif ext == 'mol2':
+    elif ext == '.mol2':
         mols = [(f"conf_{name}", Chem.MolFromMol2File(suppl))]
-    elif ext == 'mol':
-        mols = [(f"conf_{name}", Chem.MolFromMolFile(suppl))]
-    elif ext in ['mol', 'sdf']:
+    # elif ext == '.mol':
+    #     mols = [(f"conf_{name}", Chem.MolFromMolFile(suppl))]
+    elif ext in ['.mol', '.sdf']:
         mols = [(f"conf_{name}", Chem.MolFromMolFile(suppl))]
     else:
-        raise ValueError(f'The structure must be one of the following extensions: pdb, mol2, mol, sdf, smi. {suppl} was provided')
+        raise ValueError(f'The structure must be one of the following extensions: .pdb, .mol2, .mol, .sdf, .smi. {suppl} was provided')
 
     if None in [mol[1] for mol in mols]:
-        raise ValueError(f"{suppl} is not understand by RDKit")
+        raise ValueError(f"{suppl} is not understanded by RDKit")
 
 
 
 
     # =============================================================================
-    #      Generamos conformaciones que cumplen con las condiciones de rmsd
+    # Generamos conformaciones que cumplen con las condiciones de rmsd
     # expuestas con la funcion molfilter y exportamos .sdf
     # =============================================================================
 
@@ -182,6 +248,7 @@ def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads
 
         print(f"Archivos de salida: {mol[0]}.sdf, {mol[0]}.mop")
 
+        # TODO Change this part to work properlly with the attribute _Name of the molecule
         with open(f"{mol[0]}.sdf", 'rt') as file:
             lines = file.readlines()
 
@@ -211,6 +278,8 @@ def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads
                 cont += 1
         print('Número de átomos: %d\n'% (natoms))
         final.close()
-    return [mol[0] for mol in mols]
+    mol_names = [mol[0] for mol in mols]
+    return mol_names
 
 
+if __name__ == '__main__':...

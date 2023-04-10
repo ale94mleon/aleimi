@@ -1,34 +1,29 @@
 Installation
 ============
 
-This package is not release on PyPi, but could be easily installed via pip directly from the `GitHub Repo <https://github.com/ale94mleon/aleimi/>`_.
-
-Via pip (standard)
-------------------
-
-In this case you must have a correct installation
-ofopenbable and autodock-vina. If you already have it, skip the creation of the conda environment and the conda dependencies installation:
+This package can be installed from PyPi, but it depends on MOPAC. On easy way to get
+this package is from conda.
 
 Create conda environment and install conda dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    conda create -n aleimi
+    conda create -n aleimi -c conda-forge python"<3.11" mopac
     conda activate aleimi
+    pip install aleimi
 
-Then install the dependencies libraries:
+
+Development version
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    conda create -n aleimi -c conda-forge python"<3.11" mopac
+    # To get the version on development
+    pip install -U git+https://github.com/ale94mleon/aleimi.git@main
 
-..  In the future we will consider to use the python modules `vina on pypi <https://pypi.org/project/vina/>`_. Finally:
-
-pip install
+conda-forge
 ~~~~~~~~~~~
 
-.. code-block:: bash
+In the future it may be released also here.
 
-    # To get the version on development (only posable alternative for now)
-    pip install git+https://github.com/ale94mleon/aleimi.git@main

@@ -1,28 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-===============================================================================
-Created on    : 2020-2023
-Author        : Alejandro Martínez León
-Mail          : [alejandro.martinezleon@uni-saarland.de, ale94mleon@gmail.com]
-Affiliation   : Jochen Hub's Biophysics Group
-Affiliation   : Faculty of NS, University of Saarland, Saarbrücken, Germany
-===============================================================================
-DESCRIPTION   :
-DEPENDENCIES  :
-===============================================================================
-"""
 import pandas as pd
 import os
 from aleimi import templates, utils
-
-
-def ignoreLines(f, n):
-    for _ in range(n): f.readline()
+from typing import List
 
 #def extract(arc_file, boltzmann_file, energy_cut = 2, conformer_cut = None, mksh = True, mkdir = True):
 # Energy cut is in kcal/mol
-def extract(boltzmann_file, energy_cut = 2, conformer_cut = None):
+def extract(boltzmann_file:str, energy_cut:float = 2.0, conformer_cut:int = None) -> List[int]:
+    """Extract the conformers based on the filters: energy_cut and/or conformer_cut
+
+    Parameters
+    ----------
+    boltzmann_file : str
+        The boltzmann file generated with `:meth: aleimi.boltzmann.main`
+    energy_cut : float, optional
+        Maximum difference in energy with respect the conformer with lowest energy, by default 2.0
+    conformer_cut : int, optional
+        Maximum number of conformers to export, by default None
+
+    Returns
+    -------
+    List[int]
+        The list of ``cell`` identifiers
+    """
 
     df = pd.read_csv(boltzmann_file)
     indx_to_extract = []
@@ -72,7 +73,7 @@ def get_coords(input_file, indx_to_extract):
         cart = []
 
 
-        # getting data from out                                                       #
+        # getting data from out
         # finding No. of atoms
         
         while True:
@@ -97,7 +98,7 @@ def get_coords(input_file, indx_to_extract):
                         cell = int(line.split(':')[1])
 
                     elif 'CARTESIAN COORDINATES' in line and cell in indx_to_extract:
-                        ignoreLines(f, 1)
+                        utils.ignoreLines(f, 1)
                         cont = 0
                         chunk = []        
                         while cont < natoms:
@@ -147,5 +148,4 @@ def main(
             if jobsh:
                 INPUT_obj.write(f"{name}.sh",'jobsh')
 
-if __name__ == '__main__':
-    pass
+if __name__ == '__main__':...

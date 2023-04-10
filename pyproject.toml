@@ -30,6 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Physics",
@@ -74,4 +75,3 @@ file = "src/aleimi/_version.py"
 
 [project.scripts]
 aleimi-run = "aleimi.cli:_aleimi"
-aleimi-parameterize = "aleimi.processed:main"

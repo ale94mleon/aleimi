@@ -1,20 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-===============================================================================
-Created on    : Fri Jun 25 21:00:10 2021
-Author        : Alejandro Martínez León
-Mail          : [alejandro.martinezleon@uni-saarland.de, ale94mleon@gmail.com]
-Affiliation   : Jochen Hub's Biophysics Group
-Affiliation   : Faculty of NS, University of Saarland, Saarbrücken, Germany
-===============================================================================
-DESCRIPTION   :
-DEPENDENCIES  :
-===============================================================================
-"""
 import os, subprocess, time, inspect
 
 def timeit(method):
+    """Useful as decorator
+    """
     def timed(*args, **kw):
         ts = time.time()
         result = method(*args, **kw)
@@ -30,17 +20,34 @@ def timeit(method):
 
         
 
-def run(command:str, shell:bool = True, executable:str = '/bin/bash', Popen:bool = False):
-    #Here I could make some modification in order that detect the operator system
-    #NAd make the command compatible with the opertor system
-    #the fucntion eval could be an option if some modifcation to the variable command 
-    #need to be done.... SOme fligth ideas...
+def run(command: str, shell: bool = True, executable: str = '/bin/bash'):
+    """This function is just a useful wrapper around subprocess.run
 
-    if Popen:
-        #In this case you could acces the pid as: run.pid
-        process = subprocess.Popen(command, shell = shell, executable = executable)
-    else:
-        process = subprocess.run(command, shell = shell, executable = executable)
+    Parameters
+    ----------
+    command : str
+        Any command to execute.
+    shell : bool, optional
+        keyword of ``subprocess.Popen`` and ``subprocess.Popen``, by default True
+    executable : str, optional
+        keyword of ``subprocess.Popen`` and ``subprocess.Popen``, by default '/bin/bash'
+
+    Returns
+    -------
+    object
+        The processes returned by Run.
+
+    Raises
+    ------
+    RuntimeError
+        In case of non-zero exit status on the provided command.
+    """
+
+    process = subprocess.run(command, shell=shell, executable=executable, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    returncode = process.returncode
+    if returncode != 0:
+        # print(f'Command {command} returned non-zero exit status {returncode}')
+        raise RuntimeError(process.stderr)
     return process
 
 @timeit
@@ -59,21 +66,38 @@ def mopac(mop:str):
 def makedirs(path):
     os.makedirs(path,exist_ok=True)
 
-def KbT(absolute_temperature):
-    """Return the value of Kb*T in kJ/mol
+def get_default_kwargs(func:object) -> dict:
+    """Get the keywords arguments of a function
 
-    Args:
-        absolute_temperature (float): The absolute temperature in kelvin
+    Parameters
+    ----------
+    func : object
+        The function to analysis
+
+    Returns
+    -------
+    dict
+        keyword:keyword_value
     """
-    Kb = 8.314462618E-3 #kJ/(mol⋅K) (kNA)
-    return absolute_temperature*Kb
-def get_default_kwargs(func):
     signature = inspect.signature(func)
     return {
         k: v.default
         for k, v in signature.parameters.items()
         if v.default is not inspect.Parameter.empty
     }
+
+def ignoreLines(file_obj:object, num_of_lines_to_skip:int):
+    """Ignore lines during reading of file
+
+    Parameters
+    ----------
+    file_obj : object
+        The file in open mode
+    num_of_lines_to_skip : int
+        Number of lines to skip
+    """
+    for _ in range(num_of_lines_to_skip): file_obj.readline()
+
 
 if __name__ == '__main__':...
 

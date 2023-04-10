@@ -12,11 +12,13 @@ Y lo de el analisis para al menos psi4 y orca
     """
 
 def _aleimi():
+    """CLI of ``aleimi``
+    """
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument(
-        help = "The path were the molecule(s) is(are)",
+        help = "The path to the directory were the molecule(s) is(are)",
         dest='suppl',
         type=str)
     parser.add_argument(
@@ -34,8 +36,8 @@ def _aleimi():
 
     suppl = args.suppl
     params = args.params
-    if not os.path.exists( args.suppl):
-        raise FileNotFoundError(f"{ args.suppl} does not exist or is not accessible.")
+    if not os.path.exists(args.suppl):
+        raise FileNotFoundError(f"{args.suppl} does not exist or is not accessible.")
 
     # Getting the default kwargs of all the functions.
     confgen_keywords = utils.get_default_kwargs(confgen.main)
@@ -83,5 +85,4 @@ def _aleimi():
         extractor.main(f"{mol_name}.arc",f"{mol_name}_boltzmann.csv", **boltzmann_keywords)
 
 
-if __name__ == '__main__':
-    pass
+if __name__ == '__main__':...

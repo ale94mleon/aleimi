@@ -1,26 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-===============================================================================
-Created on    : 2020-2023
-Author        : Alejandro Martínez León
-Mail          : [alejandro.martinezleon@uni-saarland.de, ale94mleon@gmail.com]
-Affiliation   : Jochen Hub's Biophysics Group
-Affiliation   : Faculty of NS, University of Saarland, Saarbrücken, Germany
-===============================================================================
-DESCRIPTION   :
-DEPENDENCIES  :
-===============================================================================
-"""
 import pandas as pd
 import numpy as np
 from glob import glob
 import os
 from rmsd import kabsch_rmsd
-import tempfile
-from aleimi import OBconvert, templates, utils
 
-def psi4_out_read(out):
+def psi4_out_read(out:str):
     """
     Parameters
     ----------
@@ -28,7 +14,7 @@ def psi4_out_read(out):
         psi4 put file name.
     Returns
     -------
-    check_freq, Gibbs free energy, exyz, xyz2RMSD_H.
+    check_end, check_freq, Electronic energy, Gibbs free energy, exyz, xyz2RMSD_H.
     """
 
     with open(out, 'rt', encoding='latin-1') as file:
@@ -73,8 +59,29 @@ def psi4_out_read(out):
     xyz2RMSD_H = np.array(xyz2RMSD_H, dtype=float)
     return check_end, check_freq, E, G, exyz, xyz2RMSD_H
 
-def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = './parameterize', machine = 'smaug', **keywords):
+def main(SubDirs:bool = True, engine:str = 'psi4', xyz_out:bool = False) -> np.array:
+    """Process the output of the QM calculations generated through :meth:`aleimi.extractor.main`.
+    This function is quiet limited for now, Only useful for psi4 engine.
 
+    Parameters
+    ----------
+    SubDirs : bool, optional
+        Should be True if :meth:`aleimi.extractor.main` was used with ``mkdir = True``, by default True
+    engine : str, optional
+        psi4, gaussian or orca. It depends on the engine defined on :meth:`aleimi.extractor.main` was used with ``engine`` keyword, by default 'psi4'
+    xyz_out : bool, optional
+        If True, it will write the xyz coordinates of the conformer with the lowest energy, by default False
+
+    Returns
+    -------
+    np.array
+        The 3D coordinates
+
+    Raises
+    ------
+    FileNotFoundError
+        If there is not .out files
+    """
     if SubDirs:
         outs = [out for out in glob('*/*.out') if 'myjob' not in out]
 
@@ -178,17 +185,7 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = '
     if wrong_end:
         print(f'Las cálculos: {wrong_end} presentaron problemas para un correcta finalizacion. Check the psi4 output!')
 
-    if parameterize_path:
-        for conf in coord_lower_energy:
-            conf_path = os.path.join(parameterize_path, conf)
-            utils.makedirs(conf_path)
-            xyztmp = tempfile.NamedTemporaryFile(suffix='.xyz')
-            with open(xyztmp.name, 'w') as t:
-                t.write(f"{len(coord_lower_energy[conf])}\n\n")
-                coord_lower_energy[conf].to_string(t, header=False, index=False)
-            OBconvert.obconvert(xyztmp.name, os.path.join(conf_path, f"{conf}.mol2"))
-            templates.PARAM(machine=machine, name = conf, **keywords).write(os.path.join(conf_path, f"{conf}.sh"))
-
     return coord_lower_energy
 
- 
+
+if __name__ == '__main__':...

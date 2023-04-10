@@ -20,6 +20,7 @@ Welcome to aleimi's documentation!
    :numbered:
 
    notebooks/quickstart
+   notebooks/oncoming
 
 .. toctree::
    :caption: Documentation

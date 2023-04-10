@@ -9,10 +9,6 @@ dependencies:
   - ipywidgets
   - pip
   - python==3.9.*
-  - nbsphinx==0.8.7
-  - sphinx==4.1.2
   - mopac
   - pip:
-    - pytest
-    - recommonmark
-    - sphinx_rtd_theme
+    - aleimi

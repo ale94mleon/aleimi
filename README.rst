@@ -1,67 +1,97 @@
-Here I need to provied a correct documentation.
-===============================================
-
-Coded with  MOPAC2016 (Version: 21.329L)
+aleimi
+======
 
 
-Now you should be able to use the command line without problems:
+.. list-table::
+    :widths: 12 35
 
-`aleimi -h`
+    * - **Documentation**
+      - |docs|
+    * - **Tutorials**
+      - |binder|
+    * - **CI/CD**
+      - |tests| |codecov| |codacy|
+    * - **Build**
+      - |pypi-version|
+    * - **Source Code**
+      - |github|
+    * - **Python Versions**
+      - |pyversions|
+    * - **Dependencies**
+      - |rdkit| |mopac|
+    * - **License**
+      - |license|
+    * - **Downloads**
+      - |downloads|
 
-And get:
 
-.. code-block:: bash
+Description
+~~~~~~~~~~~
 
-  positional arguments:
-    suppl                 The path were the molecule(s) is(are)
+``aleimi`` is a versatile Python package designed for performing conformational analysis of small molecules.
+The package utilizes a range of theories, including classical mechanics, semiempirical, and high-level quantum mechanics,
+to provide comprehensive and accurate analyses of molecular conformations.
 
-  optional arguments:
-    -h, --help            show this help message and exit
-    -p PARAMS, --params PARAMS
-                          Parameters to run ALEIMI
+.. warning::
 
-How to use it
--------------
+    Please be aware that ``aleimi`` is currently undergoing heavy development, which may result in significant changes to the codebase without prior notice.
+    Therefore, we advise caution when using the package. We strongly recommend that you always pin your version of the package to ensure that your pipelines are not broken.
 
-It should be simple. Let's assume that you have in `~/my_project/mols` a batch of molecules (and nothing more); it doesn't matter the format (.pdb, .mol, .pdbqt, .smi, etc.), `aleimi` will try to handled. And also you would like to pass some parameters because you don't like the default ones. Then you have a text file like `~/my_project/my_awesome_params.txt`.
 
-Then it should as easy as call
+Documentation
+~~~~~~~~~~~~~
 
-.. code-block:: bash
+The installation instructions, documentation and tutorials can be found online on `ReadTheDocs <https://aleimi.readthedocs.io/en/latest/>`_.
 
-  aleimi ~/my_project/mols -p ~/my_project/my_awesome_params.txt
+Issues
+~~~~~~
 
-And all the magic will be done!
+If you have found a bug, please open an issue on the `GitHub Issues <https://github.com/ale94mleon/aleimi/issues>`_.
 
--p, --params option
--------------------
+Discussion
+~~~~~~~~~~
 
-This option will control the parameters of the functions:
+If you have questions on how to use ``aleimi``, or if you want to give feedback or share ideas and new features, please head to the `GitHub Discussions <https://github.com/ale94mleon/aleimi/discussions>`_.
 
-.. code-block:: python
+Citing aleimi
+~~~~~~~~~~~~~
 
-  aleimi.tools.mopac
-  aleimi.boltzmann.main
-  aleimi.extractor.main
+Please refer to the `citation page <https://aleimi.readthedocs.io/en/latest/source/citations.html>`__ on the documentation.
 
-A default param file will be filled with keyword = value lines, '#' at the beginning will be interpreted as comment lines and empty lines will be discarded. could be (in this case there is not need to specified because are the default options) like:
 
-.. code-block:: python
 
-  # For Mopac
-  mopacExecutablePath = '/opt/mopac/MOPAC2016.exe'
-
-  # For Boltzmann
-  Bd_rmsd = 1.0
-  Bd_E = 0.0
-  BOutPath = True
-
-  # For extractor
-  energy_cut = 2,
-  conformer_cut = 0,
-  engine = 'psi4',
-  machine = 'smaug',
-  mkdir = True,
-  jobsh = True,
-
-You could also add some extra keywords that will pass to the `templates.INPUT` class that is in charge to construct the input files for the QM package. But this part is very specific and probably you will need to make some changes in the code that adjust to your necessities.
+..  |docs|  image:: https://readthedocs.org/projects/aleimi/badge/?version=latest
+    :target: https://aleimi.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation
+..  |binder| image:: https://mybinder.org/badge_logo.svg
+    :target: https://mybinder.org/v2/git/https%3A%2F%2Fgithub.com%2Fale94mleon%2Faleimi/main?labpath=docs%2Fnotebooks%2Fquickstart.ipynb
+    :alt: binder
+..  |tests| image:: https://github.com/ale94mleon/aleimi/actions/workflows/tests.yml/badge.svg
+    :target: https://github.com/ale94mleon/aleimi/actions/workflows/tests.yml
+    :alt: tests
+..  |codecov| image:: https://codecov.io/gh/ale94mleon/aleimi/branch/main/graph/badge.svg?token=j5uUpLUJ4Z
+    :target: https://codecov.io/gh/ale94mleon/aleimi
+    :alt: codecov
+..  |codacy| image:: https://app.codacy.com/project/badge/Grade/6a8ded08c0eb45d493b1db0c60affe13
+    :target: https://app.codacy.com/gh/ale94mleon/aleimi/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
+    :alt: codacy
+..  |pypi-version|  image:: https://img.shields.io/pypi/v/aleimi.svg
+    :target: https://pypi.python.org/pypi/aleimi/
+    :alt: pypi-version
+..  |github|    image:: https://badgen.net/badge/icon/github?icon=github&label
+    :target: https://github.com/ale94mleon/aleimi
+    :alt: GitHub-Repo
+..  |pyversions|    image:: https://img.shields.io/pypi/pyversions/aleimi.svg
+    :target: https://pypi.python.org/pypi/aleimi/
+..  |rdkit| image:: https://img.shields.io/static/v1?label=Powered%20by&message=RDKit&color=3838ff&style=flat&logo=data:image/x-icon;base64,AAABAAEAEBAQAAAAAABoAwAAFgAAACgAAAAQAAAAIAAAAAEAGAAAAAAAAAMAABILAAASCwAAAAAAAAAAAADc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nz/FBT/FBT/FBT/FBT/FBT/FBTc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nz/FBT/PBT/PBT/PBT/PBT/PBT/PBT/FBTc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nz/FBT/PBT/ZGT/ZGT/ZGT/ZGT/ZGT/ZGT/PBT/FBTc3Nzc3Nzc3Nzc3Nzc3Nz/FBT/PBT/ZGT/ZGT/ZGT/ZGT/ZGT/ZGT/ZGT/ZGT/PBT/FBTc3Nzc3Nzc3Nz/FBT/PBT/ZGT/ZGT/ZGT/jIz/jIz/jIz/jIz/ZGT/ZGT/ZGT/PBT/FBTc3Nzc3Nz/FBT/PBT/ZGT/ZGT/jIz/jIz/jIz/jIz/jIz/jIz/ZGT/ZGT/PBT/FBTc3Nzc3Nz/FBT/PBT/ZGT/ZGT/jIz/jIz/tLT/tLT/jIz/jIz/ZGT/ZGT/PBT/FBTc3Nzc3Nz/FBT/PBT/ZGT/ZGT/jIz/jIz/tLT/tLT/jIz/jIz/ZGT/ZGT/PBT/FBTc3Nzc3Nz/FBT/PBT/ZGT/ZGT/jIz/jIz/jIz/jIz/jIz/jIz/ZGT/ZGT/PBT/FBTc3Nzc3Nz/FBT/PBT/ZGT/ZGT/ZGT/jIz/jIz/jIz/jIz/ZGT/ZGT/ZGT/PBT/FBTc3Nzc3Nzc3Nz/FBT/PBT/ZGT/ZGT/ZGT/ZGT/ZGT/ZGT/ZGT/ZGT/PBT/FBTc3Nzc3Nzc3Nzc3Nzc3Nz/FBT/PBT/ZGT/ZGT/ZGT/ZGT/ZGT/ZGT/PBT/FBTc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nz/FBT/PBT/PBT/PBT/PBT/PBT/PBT/FBTc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nz/FBT/FBT/FBT/FBT/FBT/FBTc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nz/////+B////AP///gB///wAP//4AB//+AAf//gAH//4AB//+AAf//gAH//8AD///gB///8A////gf////////
+    :target: https://www.rdkit.org/docs/index.html
+    :alt: rdkit
+..  |mopac| image:: https://img.shields.io/static/v1?label=Powered%20by&message=mopac&color=6858ff&style=flat
+    :target: https://github.com/openmopac/mopac
+    :alt: mopac
+..  |license| image:: https://badgen.net/pypi/license/aleimi/
+    :target: https://pypi.python.org/pypi/aleimi/
+    :alt: license
+..  |downloads| image:: https://static.pepy.tech/personalized-badge/aleimi?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads
+    :target: https://pepy.tech/project/aleimi
+    :alt: download
