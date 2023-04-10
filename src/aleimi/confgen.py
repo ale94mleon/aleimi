@@ -12,8 +12,7 @@ import glob as glob
 import pandas as pd
 # from operator import itemgetter
 import os
-import tempfile
-from aleimi import OBconvert, tools
+import warnings
 
 #      CHECKING geometry degeneracy
 # La primera iteracion que corre por i busca que este optimizada la estructura
@@ -118,7 +117,6 @@ def makeimg(mols, **keywords):
 
 
 
-
 def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads = 0, mopac_keywords =  'PM7 precise ef xyz geo-ok t=3h THREADS = 2'): #EPS=78.4
 
     ext = os.path.basename(suppl).split('.')[-1]
@@ -143,8 +141,6 @@ def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads
             raise ValueError(f'Las moléculas con Ids: {Errors_mols} no son estructuras SMILES correctas para RDKit. Por favor, retirelas del .smi.')
 
 
-
-
         mols = [(f'conf_mol_{i+1}', Chem.MolFromSmiles(smile)) for (i,smile) in enumerate(smiles)]
     elif ext == 'pdb':
         mols = [(f"conf_{name}", Chem.MolFromPDBFile(suppl))]
@@ -155,13 +151,10 @@ def main(suppl, numConfs = 10, rdkit_d_RMSD = 0.2, UFF = False, rdkit_numThreads
     elif ext in ['mol', 'sdf']:
         mols = [(f"conf_{name}", Chem.MolFromMolFile(suppl))]
     else:
-        print('The molecule will be internally converted to .mol using openbabel')
-        with tempfile.NamedTemporaryFile(suffix='.mol') as tmp:
-            OBconvert.obconvert(suppl, tmp.name)
-            mols = [(f"conf_{name}", Chem.MolFromMolFile(tmp.name))]
+        raise ValueError(f'The structure must be one of the following extensions: pdb, mol2, mol, sdf, smi. {suppl} was provided')
 
     if None in [mol[1] for mol in mols]:
-        raise ValueError(f"{suppl} is not understand by neither RDKit nor OpenBabel")
+        raise ValueError(f"{suppl} is not understand by RDKit")
 
 
 

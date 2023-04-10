@@ -21,7 +21,7 @@ Then install the dependencies libraries:
 
 .. code-block:: bash
 
-    conda install -y -c conda-forge mopac openbabel
+    conda create -n aleimi -c conda-forge python"<3.11" mopac
 
 ..  In the future we will consider to use the python modules `vina on pypi <https://pypi.org/project/vina/>`_. Finally:
 
