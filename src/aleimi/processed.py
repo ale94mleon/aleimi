@@ -30,7 +30,7 @@ def psi4_out_read(out):
     -------
     check_freq, Gibbs free energy, exyz, xyz2RMSD_H.
     """
-    
+
     with open(out, 'rt', encoding='latin-1') as file:
         lines = file.readlines()
 
@@ -40,16 +40,16 @@ def psi4_out_read(out):
         check_end  = False
     check_freq = False
     E = 0
-    G = 0    
+    G = 0
     exyz = []
     xyz2RMSD_H =[]
 
-    for i in range(len(lines)):
+    for i, _ in enumerate(lines):
         if 'Final (previous) structure:' in lines[i]:
             E = float(lines[i-1].split()[-1])
             for j in range(i+2,len(lines)):
                 if 'Saving final (previous) structure.' in lines[j]: break
-                split = lines[j].split()    
+                split = lines[j].split()
                 exyz.append([split[0], float(split[1]), float(split[2]), float(split[3])])
                 if 'H' not in lines[j]:
                     xyz2RMSD_H.append([float(split[1]), float(split[2]), float(split[3])])
@@ -57,12 +57,10 @@ def psi4_out_read(out):
             check_freq = True
             freqs = lines[i].split()[2:]
             for f in freqs:
-                """
-                 psi4 represent the imaginary number as 5i, 
-                 if an error ocurreduring the float convertion, 
-                 or it was converted but if less than cero (another error on sqrt) 
-                 then check_freq = False
-                """
+                # psi4 represent the imaginary number as 5i,
+                # if an error ocurreduring the float conversion, 
+                # or it was converted but if less than cero (another error on sqrt) 
+                # then check_freq = False
                 try:
                     np.sqrt(float(f))
                 except:
@@ -72,7 +70,7 @@ def psi4_out_read(out):
             G = float(lines[i].split('[K]')[1].split()[0])
         
     exyz = pd.DataFrame(exyz)
-    xyz2RMSD_H = np.array(xyz2RMSD_H, dtype=float)   
+    xyz2RMSD_H = np.array(xyz2RMSD_H, dtype=float)
     return check_end, check_freq, E, G, exyz, xyz2RMSD_H
 
 def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = './parameterize', machine = 'smaug', **keywords):
@@ -115,7 +113,7 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = '
         else:
             for out in outs:
                 if out.split('_Cell')[0] == first_name:
-                    to_work.append(out)  
+                    to_work.append(out)
 
         Gibbs_free_energies = []
         coords = []
@@ -139,7 +137,7 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = '
             ORDERED = sorted(paired, key=lambda x: x[1])
             coord_lower_energy[ORDERED[0][0].split('.')[0]] = ORDERED[0][2]
             to_print = []
-            for i in range(len(ORDERED)):
+            for i, _ in enumerate(ORDERED):
                 to_print.append([ORDERED[i][0].split('_Cell_')[-1].split('.')[0], ORDERED[i][1]])
             to_print = pd.DataFrame(to_print, columns = ['Cell', 'Gibbs (hartree/partícula)'])    
             print(first_name)
@@ -150,8 +148,8 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = '
 
         
             rmsd_matrix = np.zeros((len(ORDERED),len(ORDERED)))
-            for i in range(len(rmsd_matrix)):
-                for j in range(len(rmsd_matrix)):
+            for i, _ in enumerate(rmsd_matrix):
+                for j, _ in enumerate(rmsd_matrix):
                     if j < i:
                         rmsd_matrix[i][j] = rmsd_matrix[j][i]
                     elif j == i:
@@ -166,7 +164,7 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = '
             index = [g.split('_Cell_')[-1].split('.')[0] for g in good]
             to_print_rmsd_matrix = pd.DataFrame(rmsd_matrix, index = index, columns = index)
             with open(first_name+'.rmsd', 'wt') as final:
-                to_print_rmsd_matrix.to_string(final) 
+                to_print_rmsd_matrix.to_string(final)
         #========================Se exporta el .xyz==================
             if xyz_out:
                 with open(ORDERED[0][0].split('.')[0]+'.xyz', 'wt') as final:

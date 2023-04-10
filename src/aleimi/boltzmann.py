@@ -20,7 +20,7 @@ import os
 def arc_reader (arcf):
     with open(arcf, 'rt', encoding='latin-1') as a:
         lines = a.readlines()
-    
+
     # getting data from arc                                                       #
     HeatsOfFormation_kcalmol = []
     cells = []
@@ -67,7 +67,7 @@ def arc_reader (arcf):
     return ORDERED #, atoms]
 
 def ignoreLines(f, n):
-    for i in range(n): f.readline()
+    for _ in range(n): f.readline()
 
 def out_reader (out):
     f = open(out, 'r')
@@ -86,8 +86,7 @@ def out_reader (out):
         if "Empirical Formula" in line:
             natoms = int(line.split()[-2])
             break
-            f.close
-       
+
     f = open(out, 'r')
     while True:
         line = f.readline()
@@ -112,7 +111,7 @@ def out_reader (out):
                 elif 'CARTESIAN COORDINATES' in line:
                     ignoreLines(f, 1)
                     cont = 0
-                    chunk = []        
+                    chunk = []
                     while cont < natoms:
                         chunk.append(f.readline())
                         cont += 1
@@ -154,9 +153,9 @@ def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
         raise ValueError(f"{file_path} does not have .arc or .out extension. Therefore is not readeable by ALEIMI.")
 
     if Bd_E:
-        for i, x in enumerate(range(len(ordered))):
+        for i, _ in enumerate(ordered):
             to_trash_degenerated = []
-            for idx, y in enumerate(range(len(ordered))):
+            for idx, _ in enumerate(ordered):
                 if i < idx:
                     Ei = ordered[i][1]
                     Eidx = ordered[idx][1]
@@ -177,7 +176,7 @@ def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
 #     FOR EACH STRUCTURE, eliminate degenerated and save lot of time
 # =========================================================================
             to_trash_degenerated = sorted(to_trash_degenerated, reverse=True)
-            [ordered.pop(x) for x in to_trash_degenerated]
+            _ = [ordered.pop(x) for x in to_trash_degenerated]
 
     else:
         for i, x in enumerate(range(len(ordered))):
@@ -208,7 +207,7 @@ def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
 # =============================================================================
 #      WORKING with UNDEGENERATED. Cambie la manera de calculos los parametros:
 #Me base en: James B. Foresman - Exploring Chemistry With Electronic Structure Methods 3rd edition (2015) pag 182
-# y Mortimer_Physical Chemistry_(3rd.ed.-2008) pag 1045    
+# y Mortimer_Physical Chemistry_(3rd.ed.-2008) pag 1045
 # =============================================================================
     Kb = 1.987204259E-3                        # kcal/(mol⋅K)
     T = 298.15                                 # Absolute T (K)
@@ -221,7 +220,7 @@ def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
     qi = [np.exp(E_r/(Kb*T)) for E_r in relative_kJ]
     q = sum(qi)
     Fraction = [100*i/q for i in qi]
-    #Z = [np.e**(-(E/(k*T))) for E in energy_kcal] #no pudo calcular Z: verflowError: (34, 'Result too large') 
+    #Z = [np.e**(-(E/(k*T))) for E in energy_kcal] #no pudo calcular Z: verflowError: (34, 'Result too large')
     #Pi_b = [(np.e**-(E/(k*T)))/Z for E in energy_kcal]
     # =============================================================================
     #     DATAFRAME

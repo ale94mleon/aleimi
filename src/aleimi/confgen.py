@@ -8,11 +8,8 @@ con el nivel de teoria seleccionado.
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
-import glob as glob
 import pandas as pd
-# from operator import itemgetter
 import os
-import warnings
 
 #      CHECKING geometry degeneracy
 # La primera iteracion que corre por i busca que este optimizada la estructura
@@ -85,7 +82,7 @@ def confgen(mol, rdkit_d_RMSD, numConfs, rdkit_numThreads = 0, UFF = False):
 def makeimg(mols, **keywords):
 
     ms = [mol for mol in mols if mol is not None]
-    [AllChem.Compute2DCoords(m) for m in ms]
+    _ = [AllChem.Compute2DCoords(m) for m in ms]
 
     cant = len(ms)
     if cant==1:
