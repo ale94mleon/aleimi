@@ -10,12 +10,14 @@ on:
       - src/aleimi/**
       - tests/**
       - pyproject.toml
+      - .github/workflows/tests.yml
   pull_request:
     branches: [ "main" ]
     paths:
       - src/aleimi/**
       - tests/**
       - pyproject.toml
+      - .github/workflows/tests.yml
 
 jobs:
   build:
