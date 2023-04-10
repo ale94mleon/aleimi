@@ -18,7 +18,7 @@ from glob import glob
 import os
 from rmsd import kabsch_rmsd
 import tempfile
-from aleimi import OBconvert, templates, tools
+from aleimi import OBconvert, templates, utils
 
 def psi4_out_read(out):
     """
@@ -183,7 +183,7 @@ def main(SubDirs = True, engine = 'psi4', xyz_out = False, parameterize_path = '
     if parameterize_path:
         for conf in coord_lower_energy:
             conf_path = os.path.join(parameterize_path, conf)
-            tools.makedirs(conf_path)
+            utils.makedirs(conf_path)
             xyztmp = tempfile.NamedTemporaryFile(suffix='.xyz')
             with open(xyztmp.name, 'w') as t:
                 t.write(f"{len(coord_lower_energy[conf])}\n\n")

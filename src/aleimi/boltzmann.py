@@ -133,9 +133,9 @@ def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
 
     Args:
         file_path (path): arc or out file. It will be read with arc_reader or out_reader depending on the extension.
-        d_rmsd (float): Difference in RMSD (Angstrom) between the conformers. Defaults is 1.0.
-        d_E (float, optional): In case that also you need to screen with a threshold of energy, you specify the value in kcal/mol. Defaults to None.
-        out_path (path): In case that you want to write down the table, the path for the file.
+        Bd_rmsd (float): Difference in RMSD (Angstrom) between the conformers. Defaults is 1.0.
+        Bd_E (float, optional): In case that also you need to screen with a threshold of energy, you specify the value in kcal/mol. Defaults to None.
+        BOutPath (path): In case that you want to write down the table, the path for the file.
 
     Raises:
         ValueError: The Boltzmann table

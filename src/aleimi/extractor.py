@@ -14,7 +14,7 @@ DEPENDENCIES  :
 """
 import pandas as pd
 import os
-from aleimi import templates, tools
+from aleimi import templates, utils
 
 
 def ignoreLines(f, n):
@@ -141,7 +141,7 @@ def main(
     for name, coords in names_coords:
         INPUT_obj = templates.INPUT(engine, machine = machine, name = name, coords = coords, **keywords)
         if mkdir:
-            tools.makedirs(name)
+            utils.makedirs(name)
             INPUT_obj.write(os.path.join(name, f"{name}{InputExt}"),'input')
             if jobsh:
                 INPUT_obj.write(os.path.join(name, f"job.sh"),'jobsh')

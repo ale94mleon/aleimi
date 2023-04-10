@@ -41,13 +41,19 @@ keywords = [
     "drug-design",
 ]
 
-requires-python = ">= 3.8 , < 3.11"
+requires-python = ">= 3.8"
 dependencies = [
     "numpy",
     "pandas",
     "rdkit",
     "rmsd",
     "pyyaml",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov"
 ]
 
 [tool.versioningit]
