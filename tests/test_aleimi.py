@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from aleimi import confgen, boltzmann, extractor, utils
-import os, yaml
+import os, yaml, tempfile
 
 cwd = os.getcwd()
-utils.makedirs('tmp_wd')
-os.chdir('tmp_wd')
+tmp_path = tempfile.TemporaryDirectory(prefix='aleimi_wd_')
+os.chdir(tmp_path.name)
 suppl1 = 'suppl1.smi'
 suppl2 = 'suppl2.smi'
 

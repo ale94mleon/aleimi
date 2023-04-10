@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest, 'windows-latest'] #windows-latest (vina is not available for windows in conda-forge),m think about use bioconda autodock-vina
+        os: [ubuntu-latest, macOS-latest] #windows-latest (vina is not available for windows in conda-forge),m think about use bioconda autodock-vina
         python-version: [3.8, 3.9, '3.10', '3.11']
     steps:
     - uses: actions/checkout@v3
