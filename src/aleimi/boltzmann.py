@@ -234,8 +234,8 @@ def main(file_path, Bd_rmsd = 1.0, Bd_E = 0.0, BOutPath = True):
     DF['Fraction_%__100*qi/q'] = Fraction
 
     if BOutPath:
-        with open(f"{name}.boltzmann", 'wt') as rp:
-            DF.to_string(rp)
+        with open(f"{name}_boltzmann.csv", 'wt') as rp:
+            DF.to_csv(rp)
     return DF
 
 

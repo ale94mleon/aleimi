@@ -80,7 +80,7 @@ def _aleimi():
         print(mol_name)
         utils.mopac(f"{mol_name}.mop")
         boltzmann.main(f"{mol_name}.arc",**boltzmann_keywords)
-        extractor.main(f"{mol_name}.arc",f"{mol_name}.boltzmann", **boltzmann_keywords)
+        extractor.main(f"{mol_name}.arc",f"{mol_name}_boltzmann.csv", **boltzmann_keywords)
 
 
 if __name__ == '__main__':
