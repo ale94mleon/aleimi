@@ -7,7 +7,8 @@ import pandas as pd
 import os
 from aleimi import utils
 
-def arc_reader (arc:str):
+
+def arc_reader(arc: str):
     """This , for sure, will change in the future to a more object-oriented paradigm
     It reads a arc MOPAC file and give a tuple of
 
@@ -37,21 +38,21 @@ def arc_reader (arc:str):
         if 'Empirical Formula' in line:
             natoms = int(line.split()[-2])
             break
-    
-    #CONTAINER = []
+
+    # CONTAINER = []
     CONTAINER__H = []
-    #cart = []
+    # cart = []
     cart__H = []
-    #atoms = []
+    # atoms = []
     for i, line in enumerate(lines):
 
         if 'HEAT OF FORMATION' in line:
             #I am getting the one in kcal/mol
-            HeatsOfFormation_kcalmol.append(float(line.split()[-5])) #HEAT OF FORMATION       =       -180.69875 KCAL/MOL =    -756.04358 KJ/MOL
+            HeatsOfFormation_kcalmol.append(float(line.split()[-5]))  # HEAT OF FORMATION       =       -180.69875 KCAL/MOL =    -756.04358 KJ/MOL
        
         elif 'Empirical Formula' in line:
             try:
-                Class_E.append(float(lines[i+3].split('=')[-1].split()[0])) #las dos versiones con y sin optimizacion
+                Class_E.append(float(lines[i+3].split('=')[-1].split()[0]))  # las dos versiones con y sin optimizacion
             except:
                 Class_E.append(None)
                     
@@ -61,19 +62,20 @@ def arc_reader (arc:str):
             chunk = lines[i+4:i+4+natoms]
             cart__H = []
             for c in chunk:
-                #atoms.append(c.split()[0])
-                #cart.append([c.split()[0].strip(), float(c.split()[1]), float(c.split()[3]), float(c.split()[5])])
+                # atoms.append(c.split()[0])
+                # cart.append([c.split()[0].strip(), float(c.split()[1]), float(c.split()[3]), float(c.split()[5])])
                 if c.split()[0] != 'H':
-                    cart__H.append([c.split()[1], c.split()[3], c.split()[5]]) # No estoy tomando los atomos, solamente coordenadas c.split()[0].strip(),
-            #CONTAINER.append(np.asarray(pd.DataFrame(cart)))
+                    cart__H.append([c.split()[1], c.split()[3], c.split()[5]])   # No estoy tomando los atomos, solamente coordenadas c.split()[0].strip(),
+            # CONTAINER.append(np.asarray(pd.DataFrame(cart)))
             CONTAINER__H.append(np.array(cart__H, dtype=np.float64))
-    #atoms = (np.asarray(atoms))
+    # atoms = (np.asarray(atoms))
     # .... organizing
     paired = list(zip(cells, HeatsOfFormation_kcalmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
     ORDERED = sorted(paired, key=lambda x: x[1])  #Esto ordena la tupla segun la energia de menor a mayor
-    return ORDERED #, atoms]
+    return ORDERED  # , atoms]
 
-def out_reader (out):
+
+def out_reader(out):
     """This , for sure, will change in the future to a more object-oriented paradigm
     It reads a out MOPAC file and give a tuple of
 
@@ -99,7 +101,6 @@ def out_reader (out):
     CONTAINER__H = []
     cart__H = []
 
-
     # getting data from out                                                       #
     # finding No. of atoms
     while True:
@@ -111,7 +112,8 @@ def out_reader (out):
     f = open(out, 'r')
     while True:
         line = f.readline()
-        if len(line) == 0:break
+        if len(line) == 0:
+            break
                
         if 79*'-' in line:
             while True:
@@ -139,16 +141,17 @@ def out_reader (out):
                     cart__H = []
                     for c in chunk:
                         if c.split()[1] != 'H':
-                            cart__H.append([c.split()[2], c.split()[3], c.split()[4]]) # No estoy tomando los atomos, solamente coordenadas c.split()[0].strip(),
+                            cart__H.append([c.split()[2], c.split()[3], c.split()[4]])  # No estoy tomando los atomos, solamente coordenadas c.split()[0].strip(),
 
             CONTAINER__H.append(np.array(cart__H, dtype=np.float64))
     f.close
     # .... organizing
-    paired = list(zip(cells, HeatsOfFormation_kcalmol, CONTAINER__H, Class_E)) # Esto genera un arreglo de tuplas, me une los arreglos
-    ORDERED = sorted(paired, key=lambda x: x[1])  #Esto ordena la tupla segun la energia de menor a mayor
+    paired = list(zip(cells, HeatsOfFormation_kcalmol, CONTAINER__H, Class_E))  # Esto genera un arreglo de tuplas, me une los arreglos
+    ORDERED = sorted(paired, key=lambda x: x[1])  # Esto ordena la tupla segun la energia de menor a mayor
     return ORDERED
 
-def main(file_path:str, Bd_rmsd:float = 1.0, Bd_E:float = 0.0, BOutPath:bool = True) -> pd.DataFrame:
+
+def main(file_path: str, Bd_rmsd: float = 1.0, Bd_E: float = 0.0, BOutPath: bool = True) -> pd.DataFrame:
     """It reads the MOPAC output file (arc or out) and create a Boltzmann table
 
     Parameters
@@ -198,20 +201,20 @@ def main(file_path:str, Bd_rmsd:float = 1.0, Bd_E:float = 0.0, BOutPath:bool = T
                     Eidx = ordered[idx][1]
                     delta = abs(Ei - Eidx)
                     if delta <= Bd_E:
-    # =============================================================
-    #     CHECKING Geometric degeneracy
-    # =============================================================
+                        # =============================================================
+                        #     CHECKING Geometric degeneracy
+                        # =============================================================
                         P = ordered[i][2]
                         Q = ordered[idx][2]
 
-                        RMSD = rmsd.kabsch_rmsd(P, Q, translate = True)
+                        RMSD = rmsd.kabsch_rmsd(P, Q, translate=True)
 
                         if RMSD <= Bd_rmsd:
-                        # reject identical structure
+                            # reject identical structure
                             to_trash_degenerated.append(idx)
-# =========================================================================
-#     FOR EACH STRUCTURE, eliminate degenerated and save lot of time
-# =========================================================================
+            # =========================================================================
+            #     FOR EACH STRUCTURE, eliminate degenerated and save lot of time
+            # =========================================================================
             to_trash_degenerated = sorted(to_trash_degenerated, reverse=True)
             _ = [ordered.pop(x) for x in to_trash_degenerated]
 
@@ -220,32 +223,30 @@ def main(file_path:str, Bd_rmsd:float = 1.0, Bd_E:float = 0.0, BOutPath:bool = T
             to_trash_degenerated = []
             for idx, y in enumerate(range(len(ordered))):
                 if i < idx:
-                
-# =============================================================
-#     CHECKING Geometric degeneracy
-# =============================================================
+
+                    # =============================================================
+                    #     CHECKING Geometric degeneracy
+                    # =============================================================
                     P = ordered[i][2]
                     Q = ordered[idx][2]
 
-                    RMSD = rmsd.kabsch_rmsd(P, Q, translate = True)
+                    RMSD = rmsd.kabsch_rmsd(P, Q, translate=True)
 
                     if RMSD <= Bd_rmsd:
                         # reject identical structure and kept the lowest energy (because ordered() is ordered using the enrgy, so idx always will have a grater enrgy)
                         to_trash_degenerated.append(idx)
 
-# =========================================================================
-#     FOR EACH STRUCTURE, eliminate degenerated and save lot of time
-# =========================================================================
+            # =========================================================================
+            #     FOR EACH STRUCTURE, eliminate degenerated and save lot of time
+            # =========================================================================
             to_trash_degenerated = sorted(to_trash_degenerated, reverse=True)
             [ordered.pop(x) for x in to_trash_degenerated]
-        
 
-
-# =============================================================================
-#      WORKING with UNDEGENERATED. Cambie la manera de calculos los parametros:
-#Me base en: James B. Foresman - Exploring Chemistry With Electronic Structure Methods 3rd edition (2015) pag 182
-# y Mortimer_Physical Chemistry_(3rd.ed.-2008) pag 1045
-# =============================================================================
+    # =============================================================================
+    #      WORKING with UNDEGENERATED. Cambie la manera de calculos los parametros:
+    # Me base en: James B. Foresman - Exploring Chemistry With Electronic Structure Methods 3rd edition (2015) pag 182
+    # y Mortimer_Physical Chemistry_(3rd.ed.-2008) pag 1045
+    # =============================================================================
     Kb = 1.987204259E-3                        # kcal/(mol⋅K)
     T = 298.15                                 # Absolute T (K)
     DF = pd.DataFrame()
@@ -257,8 +258,8 @@ def main(file_path:str, Bd_rmsd:float = 1.0, Bd_E:float = 0.0, BOutPath:bool = T
     qi = [np.exp(E_r/(Kb*T)) for E_r in relative_kcalmol]
     q = sum(qi)
     Fraction = [100*i/q for i in qi]
-    #Z = [np.e**(-(E/(k*T))) for E in energy_kcal] #no pudo calcular Z: verflowError: (34, 'Result too large')
-    #Pi_b = [(np.e**-(E/(k*T)))/Z for E in energy_kcal]
+    # Z = [np.e**(-(E/(k*T))) for E in energy_kcal] #no pudo calcular Z: verflowError: (34, 'Result too large')
+    # Pi_b = [(np.e**-(E/(k*T)))/Z for E in energy_kcal]
     # =============================================================================
     #     DATAFRAME
     # =============================================================================
@@ -272,8 +273,9 @@ def main(file_path:str, Bd_rmsd:float = 1.0, Bd_E:float = 0.0, BOutPath:bool = T
     if BOutPath:
         with open(f"{name}_boltzmann.csv", 'wt') as rp:
             DF.to_csv(rp)
-    
+
     return DF
 
 
-if __name__ == '__main__':...
+if __name__ == '__main__':
+    pass

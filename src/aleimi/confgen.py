@@ -282,4 +282,5 @@ def main(suppl:str, numConfs:int = 10, rdkit_d_RMSD:float = 0.2, UFF:bool = Fals
     return mol_names
 
 
-if __name__ == '__main__':...
+if __name__ == '__main__':
+    pass

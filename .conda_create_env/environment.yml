@@ -9,10 +9,12 @@ dependencies:
   - ipywidgets
   - pip
   - python==3.9.*
-  - nbsphinx==0.8.7
-  - sphinx==4.1.2
+  - nbsphinx
+  - sphinx==5.3.0
+  - conda-build
   - mopac
   - pip:
-    - pytest
+    - sphinx_copybutton
+    - myst_nb
     - recommonmark
-    - sphinx_rtd_theme
+    - sphinx_book_theme

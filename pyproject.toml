@@ -61,9 +61,9 @@ test = [
 default-version = "1+unknown"
 
 [tool.versioningit.format]
-distance = "{base_version}+{distance}.{vcs}{rev}"
-dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
-distance-dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
+distance = "{base_version}"
+dirty = "{base_version}"
+distance-dirty = "{base_version}"
 
 [tool.versioningit.vcs]
 method = "git" 
@@ -72,6 +72,18 @@ default-tag = "0.0.0"
 
 [tool.versioningit.write]
 file = "src/aleimi/_version.py"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+abfe = [
+    "LICENSE",
+    "README.rst"
+]
 
 [project.scripts]
 aleimi-run = "aleimi.cli:_aleimi"

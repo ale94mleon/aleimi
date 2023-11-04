@@ -23,7 +23,7 @@ def psi4_out_read(out:str):
     if lines[-1].strip() == '*** Psi4 exiting successfully. Buy a developer a beer!':
         check_end = True
     else:
-        check_end  = False
+        check_end = False
     check_freq = False
     E = 0
     G = 0

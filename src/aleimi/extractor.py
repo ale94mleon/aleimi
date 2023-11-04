@@ -5,9 +5,11 @@ import os
 from aleimi import templates, utils
 from typing import List
 
-#def extract(arc_file, boltzmann_file, energy_cut = 2, conformer_cut = None, mksh = True, mkdir = True):
+# def extract(arc_file, boltzmann_file, energy_cut = 2, conformer_cut = None, mksh = True, mkdir = True):
 # Energy cut is in kcal/mol
-def extract(boltzmann_file:str, energy_cut:float = 2.0, conformer_cut:int = None) -> List[int]:
+
+
+def extract(boltzmann_file: str, energy_cut: float = 2.0, conformer_cut: int = None) -> List[int]:
     """Extract the conformers based on the filters: energy_cut and/or conformer_cut
 
     Parameters
@@ -41,15 +43,16 @@ def extract(boltzmann_file:str, energy_cut:float = 2.0, conformer_cut:int = None
 
     return sorted(indx_to_extract)
 
+
 def get_coords(input_file, indx_to_extract):
-    
+
     file_ext = os.path.basename(input_file).split('.')[-1]
     file_name = os.path.basename(input_file)[:-(len(file_ext)+1)]
 
     if file_ext == 'arc':
         with open(input_file, 'rt', encoding='latin-1') as file:
             lines = file.readlines()
-        
+
         to_return = []
         for line in lines:
             if 'Empirical Formula' in line:
@@ -72,23 +75,23 @@ def get_coords(input_file, indx_to_extract):
         chunk = []
         cart = []
 
-
         # getting data from out
         # finding No. of atoms
-        
+
         while True:
             line = f.readline()
             if "Empirical Formula" in line:
                 natoms = int(line.split()[-2])
                 f.close()
                 break
-                            
+
         f = open(input_file, 'r')
         to_return = []
         while True:
             line = f.readline()
-            if len(line) == 0:break
-                
+            if len(line) == 0:
+                break
+
             if 79*'-' in line:
                 while True:
                     line = f.readline()
@@ -108,22 +111,23 @@ def get_coords(input_file, indx_to_extract):
                         for c in chunk:
                             cart.append(c.split())
                             df = pd.DataFrame(cart)
-                            to_return.append((f"{file_name}_Cell_{cell}",df[[1, 2, 3, 4]]))  
+                            to_return.append((f"{file_name}_Cell_{cell}", df[[1, 2, 3, 4]])) 
         return to_return
     else:
         raise ValueError(f"{input_file} does not have .arc or .out extension. Therefore is not readeable by ALEIMI.")
 
+
 def main(
     input_file,
     boltzmann_file,
-    energy_cut = 2,
-    conformer_cut = 0,
-    engine = 'psi4',
-    machine = 'smaug',
-    mkdir = True,
-    jobsh = True,
+    energy_cut: float = 2,
+    conformer_cut: float = 0,
+    engine: str = 'psi4',
+    machine: str = 'smaug',
+    mkdir: bool = True,
+    jobsh: bool = True,
     **keywords):
-    
+
     if engine == 'psi4':
         InputExt = '.in'
     elif engine == 'orca':
@@ -133,19 +137,21 @@ def main(
     else:
         print(f"Warning!: It was used 'in' as generic extension for the input file for the non recognized engine: {engine}")
         InputExt = '.in'
-    
-    indx_to_extract = extract(boltzmann_file, energy_cut = energy_cut, conformer_cut = conformer_cut)
+
+    indx_to_extract = extract(boltzmann_file, energy_cut=energy_cut, conformer_cut=conformer_cut)
     names_coords = get_coords(input_file, indx_to_extract)
     for name, coords in names_coords:
-        INPUT_obj = templates.INPUT(engine, machine = machine, name = name, coords = coords, **keywords)
+        INPUT_obj = templates.INPUT(engine, machine=machine, name=name, coords=coords, **keywords)
         if mkdir:
             utils.makedirs(name)
-            INPUT_obj.write(os.path.join(name, f"{name}{InputExt}"),'input')
+            INPUT_obj.write(os.path.join(name, f"{name}{InputExt}"), 'input')
             if jobsh:
-                INPUT_obj.write(os.path.join(name, f"job.sh"),'jobsh')
+                INPUT_obj.write(os.path.join(name, "job.sh"), 'jobsh')
         else:
-            INPUT_obj.write(f"{name}{InputExt}",'input')
+            INPUT_obj.write(f"{name}{InputExt}", 'input')
             if jobsh:
-                INPUT_obj.write(f"{name}.sh",'jobsh')
+                INPUT_obj.write(f"{name}.sh", 'jobsh')
 
-if __name__ == '__main__':...
+
+if __name__ == '__main__':
+    pass
