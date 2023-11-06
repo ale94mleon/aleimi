@@ -86,5 +86,5 @@ abfe = [
 ]
 
 [project.scripts]
-aleimi-run = "aleimi.cli:_aleimi"
+aleimi-run = "aleimi.cli:_aleimi_run"
 aleimi-processed="aleimi.cli:_aleimi_processed"
