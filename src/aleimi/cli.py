@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from aleimi import confgen, boltzmann, extractor, __version__, utils
+from aleimi import confgen, boltzmann, extractor, __version__, utils, processed
 import argparse, os, yaml
 
 """
@@ -12,7 +12,7 @@ Y lo de el analisis para al menos psi4 y orca
     """
 
 
-def _aleimi():
+def _aleimi_run():
     """CLI of ``aleimi``
     """
     parser = argparse.ArgumentParser(description=__doc__,
@@ -85,5 +85,40 @@ def _aleimi():
         extractor.main(f"{mol_name}.arc", f"{mol_name}_boltzmann.csv", **boltzmann_keywords)
 
 
+def _aleimi_processed():
+    """CLI of ``processed``
+    """
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawTextHelpFormatter)
+
+
+    parser.add_argument('--no_sub_dirs',
+                        help ='Should be True if :meth:`aleimi.extractor.main` was used with ``mkdir = True``, by default True',
+                        nargs = "?",
+                        dest = 'no_sub_dirs',
+                        const = False,
+                        default = True,
+                        type=bool)
+    parser.add_argument('-e, --engine',
+                        help ="psi4, gaussian or orca. It depends on the engine defined on :meth:`aleimi.extractor.main` was used with ``engine`` keyword, by default 'psi4'",
+                        dest = 'engine',
+                        default = 'psi4',
+                        type=str)
+
+    parser.add_argument('--xyz_out',
+                        help ='If True, it will write the xyz coordinates of the conformer with the lowest energy, by default False',
+                        nargs = "?",
+                        dest = 'xyz_out',
+                        const = True,
+                        default = False,
+                        type=bool)
+
+    args = parser.parse_args()
+
+    processed(
+        SubDirs=not args.no_sub_dirs,
+        engine=args.engine,
+        xyz_out=args.xyz_out
+    )
 if __name__ == '__main__':
     pass

@@ -95,15 +95,16 @@ def get_coords(input_file, indx_to_extract):
             if 79*'-' in line:
                 while True:
                     line = f.readline()
-                    if (79*'*' in line) or (len(line) == 0):break
+                    if (79*'*' in line) or (len(line) == 0):
+                        break
 
-                    if 'CELL' in line: 
+                    if 'CELL' in line:
                         cell = int(line.split(':')[1])
 
                     elif 'CARTESIAN COORDINATES' in line and cell in indx_to_extract:
                         utils.ignoreLines(f, 1)
                         cont = 0
-                        chunk = []        
+                        chunk = []   
                         while cont < natoms:
                             chunk.append(f.readline())
                             cont += 1
@@ -135,10 +136,12 @@ def main(
     elif engine == 'gaussian':
         InputExt = '.gjf'
     else:
-        print(f"Warning!: It was used 'in' as generic extension for the input file for the non recognized engine: {engine}")
+        print("Warning!: It was used 'in' as generic extension for the input "
+              f"file for the non recognized engine: {engine}")
         InputExt = '.in'
 
-    indx_to_extract = extract(boltzmann_file, energy_cut=energy_cut, conformer_cut=conformer_cut)
+    indx_to_extract = extract(boltzmann_file, energy_cut=energy_cut,
+                              conformer_cut=conformer_cut)
     names_coords = get_coords(input_file, indx_to_extract)
     for name, coords in names_coords:
         INPUT_obj = templates.INPUT(engine, machine=machine, name=name, coords=coords, **keywords)
