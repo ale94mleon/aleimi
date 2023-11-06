@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Fixed
+
+- Improve code quality.
+- Docs.
+- Some bugs.
+
+### Added
+
+- CLI for `aleimi.processed:main`
+
 ## [0.0.1] - 2023-04-10
 
 ### Fixed
@@ -22,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The boltzmann table now it is a `csv` file.
+- The boltzmann table now is a `csv` file.
 - To toml packaging.
 
 ### Removed
