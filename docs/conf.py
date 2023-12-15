@@ -91,7 +91,7 @@ source_suffix = {
 html_theme = "sphinx_book_theme"
 pygments_style = "sphinx"
 html_theme_options = {
-    "repository_url": "https://github.com/ale94mleon/moldrug/",
+    "repository_url": "https://github.com/ale94mleon/aleimi/",
     "path_to_docs": "docs",
     "use_source_button": True,
     "use_download_button": True,
@@ -101,7 +101,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": "https://github.com/ale94mleon/moldrug/",
+            "url": "https://github.com/ale94mleon/aleimi/",
             "icon": "fa-brands fa-square-github",
             "type": "fontawesome",
         }
