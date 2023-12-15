@@ -115,7 +115,7 @@ def _aleimi_processed():
 
     args = parser.parse_args()
 
-    processed(
+    processed.main(
         SubDirs=not args.no_sub_dirs,
         engine=args.engine,
         xyz_out=args.xyz_out
